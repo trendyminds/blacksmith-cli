@@ -16,4 +16,6 @@ return [
     'subdomain' => env('FORGE_SUBDOMAIN'),
 
     'domain' => env('FORGE_DOMAIN'),
+
+    'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
 ];
