@@ -121,16 +121,19 @@ class Sandbox
             'cd $FORGE_SITE_PATH',
             'git pull origin $FORGE_SITE_BRANCH',
             '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader',
-            '',
         ];
 
         $userCommands = str(config('forge.deploy_script'))
-            ->explode(";")
+            ->explode(';')
             ->filter()
             ->map(fn ($command) => str($command)->trim()->value())
-            ->prepend('# Via FORGE_DEPLOY_SCRIPT');
+            ->whenNotEmpty(fn ($commands) =>
+                $commands->prepend('# Via FORGE_DEPLOY_SCRIPT')->prepend('')
+            );
 
-        $allCommands = collect([...$defaultCommands, ...$userCommands])->join("\n");
+        $allCommands = collect($defaultCommands)
+            ->when($userCommands->isNotEmpty(), fn ($commands) => $commands->concat($userCommands))
+            ->join("\n");
 
         $this->getSite()->updateDeploymentScript($allCommands);
     }
