@@ -6,7 +6,7 @@ use Laravel\Forge\Resources\Site;
 use Mockery\LegacyMockInterface;
 
 /**
- * Helper to set up a mock Sandbox and Site instance.
+ * Helper for mocking deployment script expectations.
  *
  * @param  string  $expectedScript  The script expected to be passed to updateDeploymentScript.
  */

@@ -127,8 +127,7 @@ class Sandbox
             ->explode(';')
             ->filter()
             ->map(fn ($command) => str($command)->trim()->value())
-            ->whenNotEmpty(fn ($commands) =>
-                $commands->prepend('# Via FORGE_DEPLOY_SCRIPT')->prepend('')
+            ->whenNotEmpty(fn ($commands) => $commands->prepend('# Via FORGE_DEPLOY_SCRIPT')->prepend('')
             );
 
         $allCommands = collect($defaultCommands)
