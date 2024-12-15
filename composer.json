@@ -17,10 +17,10 @@
     ],
     "require": {
         "php": "^8.2.0",
-        "laravel-zero/framework": "^11.0.2",
         "laravel/forge-sdk": "^3.19"
     },
     "require-dev": {
+        "laravel-zero/framework": "^11.0.2",
         "laravel/pint": "^1.18.1",
         "mockery/mockery": "^1.6.12",
         "pestphp/pest": "^3.5.1"
@@ -47,5 +47,5 @@
     },
     "minimum-stability": "stable",
     "prefer-stable": true,
-    "bin": ["blacksmith"]
+    "bin": ["builds/blacksmith"]
 }
