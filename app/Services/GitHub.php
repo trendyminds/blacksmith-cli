@@ -12,7 +12,7 @@ class GitHub
      */
     public static function postDeployDetails(): void
     {
-        $sandbox = new Sandbox;
+        $sandbox = new Sandbox();
         $githubToken = config('github.token');
         $prNumber = config('github.pr_number');
         $forgeLink = "https://forge.laravel.com/servers/{$sandbox->server}/sites/{$sandbox->getSite()->id}";
@@ -24,6 +24,7 @@ class GitHub
     |------------------|----------------------------------------------|
     | **URL**          | http://{$sandbox->getUrl()}                  |
     | **PHP Version**  | {$sandbox->php_version}                      |
+    | **Web Root**     | {$sandbox->web_directory}                    |
 
     ---
 
