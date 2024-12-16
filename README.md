@@ -1,6 +1,8 @@
 # ⚒️ Blacksmith CLI
 ### A Forge-provisioning CLI tool for sandboxes
 
+<img src="docs/preview.png" alt="The confirmation notice posted in a pull request when Blacksmith has provisioned a site to your Laravel Forge server">
+
 ## ✅ Requirements
 
 When provisioning a sandbox you'll need:
