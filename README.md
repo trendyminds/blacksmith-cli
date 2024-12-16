@@ -1,2 +1,2 @@
 # ⚒️ Blacksmith CLI
-## A Forge-provisioning CLI tool for sandboxes
+### A Forge-provisioning CLI tool for sandboxes
