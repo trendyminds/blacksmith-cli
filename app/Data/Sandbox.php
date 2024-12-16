@@ -4,6 +4,7 @@ namespace App\Data;
 
 use Exception;
 use Laravel\Forge\Forge;
+use Laravel\Forge\Resources\Database;
 use Laravel\Forge\Resources\Site;
 
 class Sandbox
@@ -75,6 +76,32 @@ class Sandbox
     }
 
     /**
+     * Returns the database name for the sandbox if one is required
+     */
+    public function getDatabaseName(): ?string
+    {
+        if (! config('forge.enable_db')) {
+            return null;
+        }
+
+        $repo = str($this->git_repo)->explode('/')->last();
+
+        return str($repo)->append('-'.$this->git_branch)->slug('_')->value();
+    }
+
+    /**
+     * Returns the sandbox's database from Forge
+     */
+    public function getDatabase(): ?Database
+    {
+        $allDatabases = $this->forge->databases($this->server);
+
+        return collect($allDatabases)
+            ->filter(fn ($db) => $db->name === $this->getDatabaseName())
+            ->first();
+    }
+
+    /**
      * Returns the site from Forge
      */
     public function getSite(): ?Site
@@ -100,6 +127,7 @@ class Sandbox
             'project_type' => 'php',
             'php_version' => $this->php_version,
             'directory' => $this->web_directory,
+            'database' => $this->getDatabaseName(),
         ]);
     }
 
@@ -113,7 +141,7 @@ class Sandbox
             'repository' => $this->git_repo,
             'branch' => $this->git_branch,
             'composer' => true,
-            'database' => null,
+            'database' => $this->getDatabaseName(),
             'migrate' => false,
         ])->enableQuickDeploy();
     }
@@ -159,6 +187,10 @@ class Sandbox
     {
         if (! $this->getSite()) {
             throw new Exception('There is no sandbox to destroy');
+        }
+
+        if ($this->getDatabase()) {
+            $this->getDatabase()->delete();
         }
 
         $this->getSite()->delete();

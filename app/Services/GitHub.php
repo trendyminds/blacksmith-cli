@@ -12,7 +12,7 @@ class GitHub
      */
     public static function postDeployDetails(): void
     {
-        $sandbox = new Sandbox();
+        $sandbox = new Sandbox;
         $githubToken = config('github.token');
         $prNumber = config('github.pr_number');
         $forgeLink = "https://forge.laravel.com/servers/{$sandbox->server}/sites/{$sandbox->getSite()->id}";
@@ -20,11 +20,23 @@ class GitHub
         $message = <<<EOT
     # Blacksmith Sandbox Details
     A sandbox for this pull request was just provisioned by [Blacksmith](https://github.com/trendyminds/blacksmith-cli/). Details regarding your sandbox:
-    | Info             | Details                                      |
-    |------------------|----------------------------------------------|
-    | **URL**          | http://{$sandbox->getUrl()}                  |
-    | **PHP Version**  | {$sandbox->php_version}                      |
-    | **Web Root**     | {$sandbox->web_directory}                    |
+    | Info              | Details                                      |
+    |-------------------|----------------------------------------------|
+    | **URL**           | http://{$sandbox->getUrl()}                  |
+    | **PHP Version**   | {$sandbox->php_version}                      |
+    | **Web Root**      | {$sandbox->web_directory}                    |
+    EOT;
+
+        if ($sandbox->getDatabase()) {
+            $message .= "\n";
+            $message .= <<<EOT
+    | **Database**          | `{$sandbox->getDatabase()->name}`          |
+    | **Database User**     | `forge`                                    |
+    | **Database Password** | The default `forge` database password      |
+    EOT;
+        }
+
+        $message .= <<<EOT
 
     ---
 
