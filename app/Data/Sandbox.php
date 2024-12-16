@@ -16,22 +16,22 @@ class Sandbox
     /**
      * The Forge server ID
      */
-    protected string $server;
+    public string $server;
 
     /**
      * The PHP version to use
      */
-    protected string $php_version;
+    public string $php_version;
 
     /**
      * The Git repository to mount
      */
-    protected string $git_repo;
+    public string $git_repo;
 
     /**
      * The Git branch to mount
      */
-    protected string $git_branch;
+    public string $git_branch;
 
     /**
      * The subdomain of the sandbox
@@ -53,8 +53,8 @@ class Sandbox
         $this->token = config('forge.token');
         $this->server = config('forge.server');
         $this->php_version = config('forge.php_version');
-        $this->git_repo = config('forge.git_repo');
-        $this->git_branch = config('forge.git_branch');
+        $this->git_repo = config('github.repo');
+        $this->git_branch = config('github.branch');
         $this->subdomain = config('forge.subdomain');
         $this->domain = config('forge.domain');
         $this->forge = new Forge($this->token);

@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Data\Sandbox;
+use App\Services\GitHub;
 use LaravelZero\Framework\Commands\Command;
 
 class CreateCommand extends Command
@@ -27,5 +28,6 @@ class CreateCommand extends Command
         $this->components->task('Mounting the repository', fn () => $sandbox->mountRepository());
         $this->components->task('Updating the deployment script', fn () => $sandbox->updateDeployScript());
         $this->components->task('Deploying site', fn () => $sandbox->deploy());
+        $this->components->task('Posting details to GitHub', fn () => GitHub::postDeployDetails());
     }
 }

@@ -17,6 +17,7 @@
     ],
     "require": {
         "php": "^8.2.0",
+        "illuminate/http": "^11.35",
         "laravel/forge-sdk": "^3.19"
     },
     "require-dev": {
