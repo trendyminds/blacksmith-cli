@@ -14,4 +14,6 @@ return [
     'domain' => env('FORGE_DOMAIN'),
 
     'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
+
+    'web_directory' => env('FORGE_WEB_DIRECTORY', '/public'),
 ];

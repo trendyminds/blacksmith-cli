@@ -44,6 +44,11 @@ class Sandbox
     protected string $domain;
 
     /**
+     * The document root for web requests
+     */
+    public string $web_directory;
+
+    /**
      * The Forge API client
      */
     private Forge $forge;
@@ -57,6 +62,7 @@ class Sandbox
         $this->git_branch = config('github.branch');
         $this->subdomain = config('forge.subdomain');
         $this->domain = config('forge.domain');
+        $this->web_directory = config('forge.web_directory');
         $this->forge = new Forge($this->token);
     }
 
@@ -93,6 +99,7 @@ class Sandbox
             'domain' => $this->getUrl(),
             'project_type' => 'php',
             'php_version' => $this->php_version,
+            'directory' => $this->web_directory,
         ]);
     }
 
