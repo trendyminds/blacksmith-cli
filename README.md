@@ -98,3 +98,15 @@ jobs:
 | `GITHUB_REPO`          |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
 | `GITHUB_BRANCH`        |                 | The branch to use when mounting your repo to the site                                                                  |
 | `GITHUB_PR_NUMBER`     |                 | The pull request number used to create a post-deploy comment within the pull request                                   |
+
+## <img src="docs/statamic.svg" alt="Statamic"> Statamic notes
+
+### Git Automation
+Git automation should be enabled by including `STATAMIC_GIT_AUTOMATIC` in your environment variables and setting it to `false`.
+
+This means content commits have to be manually performed by visiting Utilties > Git. However, it _greatly_ simplifies your sandbox:
+
+1. You do not need to run Redis in every Statamic sandbox you create handling queued commits
+2. You do not need to commit every single content save to your pull request if you do not queue your commits
+
+While `STATAMIC_GIT_AUTOMATIC=false` means some occasional manual labor, it makes the setup simpler and also enables you to create Statamic sandboxes that _shouldn't_ have committed sandbox changes.
