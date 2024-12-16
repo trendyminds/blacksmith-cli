@@ -173,6 +173,20 @@ class Sandbox
     }
 
     /**
+     * Ensures common development environment variables are set to avoid putting the sandbox in production modes
+     */
+    public function updateEnvironmentVars(): void
+    {
+        $envFile = $this->forge->siteEnvironmentFile($this->server, $this->getSite()->id);
+
+        $newEnv = str($envFile)
+            ->replace('APP_ENV=production', 'APP_ENV=dev')
+            ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev');
+
+        $this->forge->updateSiteEnvironmentFile($this->server, $this->getSite()->id, $newEnv);
+    }
+
+    /**
      * Deploys the site
      */
     public function deploy(): void
