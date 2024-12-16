@@ -152,6 +152,9 @@ class Sandbox
     public function updateDeployScript(): void
     {
         $defaultCommands = [
+            '# Ignore bot-based commits to the repo',
+            '[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0',
+            '',
             '# Default Blacksmith commands',
             'cd $FORGE_SITE_PATH',
             'git pull origin $FORGE_SITE_BRANCH',

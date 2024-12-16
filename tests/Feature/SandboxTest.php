@@ -33,6 +33,9 @@ it('adds custom deployment scripts when defined', function () {
     Config::set('forge.deploy_script', 'npm install; npm run build');
 
     $expectedScript = <<<'EOD'
+# Ignore bot-based commits to the repo
+[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
+
 # Default Blacksmith commands
 cd $FORGE_SITE_PATH
 git pull origin $FORGE_SITE_BRANCH
@@ -51,6 +54,9 @@ it('does not matter where the semicolon for the deployment scripts', function ()
     Config::set('forge.deploy_script', 'npm install; npm run build;npm run deploy; npm run test;');
 
     $expectedScript = <<<'EOD'
+# Ignore bot-based commits to the repo
+[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
+
 # Default Blacksmith commands
 cd $FORGE_SITE_PATH
 git pull origin $FORGE_SITE_BRANCH
@@ -71,6 +77,9 @@ it('excludes custom deployment scripts when not set', function () {
     Config::set('forge.deploy_script', null);
 
     $expectedScript = <<<'EOD'
+# Ignore bot-based commits to the repo
+[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
+
 # Default Blacksmith commands
 cd $FORGE_SITE_PATH
 git pull origin $FORGE_SITE_BRANCH
