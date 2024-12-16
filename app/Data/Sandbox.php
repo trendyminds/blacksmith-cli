@@ -181,7 +181,8 @@ class Sandbox
 
         $newEnv = str($envFile)
             ->replace('APP_ENV=production', 'APP_ENV=dev')
-            ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev');
+            ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev')
+            ->value();
 
         $this->forge->updateSiteEnvironmentFile($this->server, $this->getSite()->id, $newEnv);
     }
