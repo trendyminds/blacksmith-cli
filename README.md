@@ -77,8 +77,8 @@ jobs:
         GITHUB_BRANCH: ${{ github.head_ref }}
         FORGE_TOKEN: ${{ secrets.BLACKSMITH_FORGE_TOKEN }}
         FORGE_SERVER: ${{ secrets.BLACKSMITH_SANDBOX_SERVER }}
-        FORGE_SUBDOMAIN: statamic-${{ github.head_ref }}
-        FORGE_DOMAIN: trendyminds.io
+        FORGE_SUBDOMAIN: site-${{ github.event.number }}
+        FORGE_DOMAIN: mydomain.io
       run: blacksmith destroy
 ```
 
