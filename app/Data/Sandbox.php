@@ -188,6 +188,10 @@ class Sandbox
         $newEnv = EnvironmentVariables::setDev($envFile);
         $newEnv = EnvironmentVariables::updateOrAppend($newEnv, config('forge.env_vars'));
 
+        if (config('forge.enable_db')) {
+            $newEnv = EnvironmentVariables::setDB($newEnv, $this);
+        }
+
         $this->forge->updateSiteEnvironmentFile($this->server, $this->getSite()->id, $newEnv);
     }
 

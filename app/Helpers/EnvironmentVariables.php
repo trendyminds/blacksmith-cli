@@ -2,8 +2,23 @@
 
 namespace App\Helpers;
 
+use App\Data\Sandbox;
+
 class EnvironmentVariables
 {
+    /**
+     * Ensure most environments we interact with get database details set
+     */
+    public static function setDB(string $currentEnv, Sandbox $sandbox): string
+    {
+        return str($currentEnv)
+            ->replaceMatches('/^DB_DATABASE=.*/m', 'DB_DATABASE='.$sandbox->getDatabaseName())
+            ->replaceMatches('/^DB_NAME=.*/m', 'DB_NAME='.$sandbox->getDatabaseName())
+            ->replaceMatches('/^DB_USERNAME=.*/m', 'DB_USERNAME=forge')
+            ->replaceMatches('/^DB_USER=.*/m', 'DB_USER=forge')
+            ->value();
+    }
+
     /**
      * Ensure most environments we interact with get set to development instead of production
      */

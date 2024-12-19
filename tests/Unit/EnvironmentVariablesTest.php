@@ -1,5 +1,6 @@
 <?php
 
+use App\Data\Sandbox;
 use App\Helpers\EnvironmentVariables;
 
 test('handles various empty and formatting states', function () {
@@ -46,4 +47,28 @@ test('default environment is modified', function () {
 
     $env3 = EnvironmentVariables::setDev("FAKE_ENV=foo\nENVIRONMENT=production\nAPP_NAME=Test\nAPP_DEBUG=true");
     expect($env3)->toBe("FAKE_ENV=foo\nENVIRONMENT=dev\nAPP_NAME=Test\nAPP_DEBUG=true");
+});
+
+test('database name is set', function () {
+    // Fake the database name
+    $sandboxMock = Mockery::mock(Sandbox::class)->makePartial();
+    $sandboxMock->shouldReceive('getDatabaseName')->andReturn('my_db');
+
+    $env1 = EnvironmentVariables::setDB("APP_ENV=production\nAPP_NAME=Test\nDB_DATABASE=", $sandboxMock);
+    expect($env1)->toBe("APP_ENV=production\nAPP_NAME=Test\nDB_DATABASE=my_db");
+
+    $env2 = EnvironmentVariables::setDB("APP_ENV=production\nAPP_NAME=Test\nDB_NAME=", $sandboxMock);
+    expect($env2)->toBe("APP_ENV=production\nAPP_NAME=Test\nDB_NAME=my_db");
+});
+
+test('database user is set', function () {
+    // Fake the database name
+    $sandboxMock = Mockery::mock(Sandbox::class)->makePartial();
+    $sandboxMock->shouldReceive('getDatabaseName')->andReturn('my_db');
+
+    $env1 = EnvironmentVariables::setDB("APP_ENV=production\nAPP_NAME=Test\nDB_USER=", $sandboxMock);
+    expect($env1)->toBe("APP_ENV=production\nAPP_NAME=Test\nDB_USER=forge");
+
+    $env2 = EnvironmentVariables::setDB("APP_ENV=production\nAPP_NAME=Test\nDB_USERNAME=", $sandboxMock);
+    expect($env2)->toBe("APP_ENV=production\nAPP_NAME=Test\nDB_USERNAME=forge");
 });
