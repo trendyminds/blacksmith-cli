@@ -195,7 +195,7 @@ class Sandbox
      */
     public function deploy(): void
     {
-        $this->getSite()->deploySite(true);
+        $this->getSite()->deploySite(false);
     }
 
     /**
