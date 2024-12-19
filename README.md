@@ -95,6 +95,7 @@ jobs:
 | `FORGE_ENV_VARS`       |                 | Environment variables to append (or replace if they already exist)                                                      |
 | `FORGE_WEB_DIRECTORY`  | `/public`       | The public root of the site                                                                                             |
 | `FORGE_ENABLE_DB`      | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment         |
+| `FORGE_DB_PASSWORD`    |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically          |
 | `GITHUB_TOKEN`         |                 | Used to create a post-deploy comment within the pull request                                                            |
 | `GITHUB_REPO`          |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
 | `GITHUB_BRANCH`        |                 | The branch to use when mounting your repo to the site                                                                  |

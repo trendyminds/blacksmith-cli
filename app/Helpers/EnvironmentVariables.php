@@ -12,10 +12,15 @@ class EnvironmentVariables
     public static function setDB(string $currentEnv, Sandbox $sandbox): string
     {
         return str($currentEnv)
+            ->replaceMatches('/^DB_HOST=.*/m', 'DB_HOST=127.0.0.1')
+            ->replaceMatches('/^DB_SERVER=.*/m', 'DB_SERVER=127.0.0.1')
+            ->replaceMatches('/^DB_PORT=.*/m', 'DB_PORT=3306')
             ->replaceMatches('/^DB_DATABASE=.*/m', 'DB_DATABASE='.$sandbox->getDatabaseName())
             ->replaceMatches('/^DB_NAME=.*/m', 'DB_NAME='.$sandbox->getDatabaseName())
             ->replaceMatches('/^DB_USERNAME=.*/m', 'DB_USERNAME=forge')
             ->replaceMatches('/^DB_USER=.*/m', 'DB_USER=forge')
+            ->replaceMatches('/^DB_PASSWORD=.*/m', 'DB_PASSWORD='.config('forge.db_password'))
+            ->replaceMatches('/^DB_PASS=.*/m', 'DB_PASS='.config('forge.db_password'))
             ->value();
     }
 

@@ -19,5 +19,7 @@ return [
 
     'enable_db' => env('FORGE_ENABLE_DB', false),
 
+    'db_password' => env('FORGE_DB_PASSWORD'),
+
     'env_vars' => env('FORGE_ENV_VARS'),
 ];
