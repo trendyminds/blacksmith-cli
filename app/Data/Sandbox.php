@@ -2,6 +2,7 @@
 
 namespace App\Data;
 
+use App\Helpers\EnvironmentVariables;
 use Exception;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Database;
@@ -182,7 +183,14 @@ class Sandbox
     {
         $envFile = $this->forge->siteEnvironmentFile($this->server, $this->getSite()->id);
 
-        $newEnv = str($envFile)
+        // Replace or append user-supplied environment variables. Ensure APP_ENV and ENVIRONMENT are always set to dev
+        $newEnv = EnvironmentVariables::updateOrAppend(
+            $envFile,
+            config('forge.env_vars')
+        );
+
+        // Ensure APP_ENV and ENVIRONMENT are set to dev if not already
+        str($newEnv)
             ->replace('APP_ENV=production', 'APP_ENV=dev')
             ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev')
             ->value();

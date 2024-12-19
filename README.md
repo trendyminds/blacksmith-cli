@@ -20,7 +20,7 @@ name: Provision Sandbox
 
 on:
   pull_request:
-    types: [opened, edited, labeled, reopened, ready_for_review]
+    types: [labeled, reopened]
 
 jobs:
   sandbox:
@@ -92,6 +92,7 @@ jobs:
 | `FORGE_SUBDOMAIN`      |                 | The subdomain for your application (Ex: `my-feature-123`)                                                               |
 | `FORGE_DOMAIN`         |                 | The domain to use (Ex: `domain.com`)                                                                                    |
 | `FORGE_DEPLOY_SCRIPT`  |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)   |
+| `FORGE_ENV_VARS`       |                 | Environment variables to append (or replace if they already exist)                                                      |
 | `FORGE_WEB_DIRECTORY`  | `/public`       | The public root of the site                                                                                             |
 | `FORGE_ENABLE_DB`      | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment         |
 | `GITHUB_TOKEN`         |                 | Used to create a post-deploy comment within the pull request                                                            |

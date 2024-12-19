@@ -18,4 +18,6 @@ return [
     'web_directory' => env('FORGE_WEB_DIRECTORY', '/public'),
 
     'enable_db' => env('FORGE_ENABLE_DB', false),
+
+    'env_vars' => env('FORGE_ENV_VARS'),
 ];
