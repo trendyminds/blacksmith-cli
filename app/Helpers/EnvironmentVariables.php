@@ -39,10 +39,15 @@ class EnvironmentVariables
      * Replaces an existing environment variable or appends it if it does not exist
      *
      * @param  string  $currentEnv  The string version of the current environment variables
-     * @param  string  $newVars  The new environment variables to add or update
+     * @param  ?string  $newVars  The new environment variables to add or update
      */
-    public static function updateOrAppend(string $currentEnv, string $newVars): string
+    public static function updateOrAppend(string $currentEnv, ?string $newVars): string
     {
+        // If there are no new variables, return the current environment
+        if (is_null($newVars) || empty($newVars)) {
+            return $currentEnv;
+        }
+
         // Parse the stringified environment variables into an [key => value] array
         $parsedVars = str($newVars)
             ->explode(';')

@@ -10,6 +10,9 @@ test('handles various empty and formatting states', function () {
 
     $env2 = EnvironmentVariables::updateOrAppend("APP_NAME=Test\nAPP_DEBUG=true", 'APP_TEST=12;APP_ANOTHER=foo ;APP_AGAIN=bar');
     expect($env2)->toBe("APP_NAME=Test\nAPP_DEBUG=true\nAPP_TEST=12\nAPP_ANOTHER=foo\nAPP_AGAIN=bar");
+
+    $env3 = EnvironmentVariables::updateOrAppend("APP_NAME=Test\nAPP_DEBUG=true", null);
+    expect($env3)->toBe("APP_NAME=Test\nAPP_DEBUG=true");
 });
 
 test('variables that do not exist are appended to the end', function () {
