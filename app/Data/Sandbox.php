@@ -183,17 +183,10 @@ class Sandbox
     {
         $envFile = $this->forge->siteEnvironmentFile($this->server, $this->getSite()->id);
 
-        // Replace or append user-supplied environment variables. Ensure APP_ENV and ENVIRONMENT are always set to dev
-        $newEnv = EnvironmentVariables::updateOrAppend(
-            $envFile,
-            config('forge.env_vars')
-        );
-
-        // Ensure APP_ENV and ENVIRONMENT are set to dev if not already
-        str($newEnv)
-            ->replace('APP_ENV=production', 'APP_ENV=dev')
-            ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev')
-            ->value();
+        // Ensure APP_ENV and ENVIRONMENT are always set to dev
+        // Replace or append user-supplied environment variables
+        $newEnv = EnvironmentVariables::setDev($envFile);
+        $newEnv = EnvironmentVariables::updateOrAppend($newEnv, config('forge.env_vars'));
 
         $this->forge->updateSiteEnvironmentFile($this->server, $this->getSite()->id, $newEnv);
     }

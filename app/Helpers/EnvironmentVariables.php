@@ -5,6 +5,17 @@ namespace App\Helpers;
 class EnvironmentVariables
 {
     /**
+     * Ensure most environments we interact with get set to development instead of production
+     */
+    public static function setDev(string $currentEnv): string
+    {
+        return str($currentEnv)
+            ->replace('APP_ENV=production', 'APP_ENV=dev')
+            ->replace('ENVIRONMENT=production', 'ENVIRONMENT=dev')
+            ->value();
+    }
+
+    /**
      * Replaces an existing environment variable or appends it if it does not exist
      *
      * @param  string  $currentEnv  The string version of the current environment variables
