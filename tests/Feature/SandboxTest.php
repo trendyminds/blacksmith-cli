@@ -37,7 +37,6 @@ it('creates a new sandbox with minimum info', function ($domain, $app_id, $pr_nu
     Http::fake();
     (new Sandbox)->createSite();
 
-    // Check that the createSite function called the right endpoint
     Http::assertSent(function (Request $request) use ($domain, $app_id, $pr_number) {
         return $request->url() === 'https://forge.laravel.com/api/v1/servers/1/sites' &&
             $request->method() === 'POST' &&
@@ -46,6 +45,7 @@ it('creates a new sandbox with minimum info', function ($domain, $app_id, $pr_nu
                 'project_type' => 'php',
                 'php_version' => 'php83',
                 'directory' => '/public',
+                'database' => null,
             ];
     });
 })->with([
@@ -62,7 +62,6 @@ it('PHP version defaults to php83', function () {
     Http::fake();
     (new Sandbox)->createSite();
 
-    // Check that the createSite function called the right endpoint
     Http::assertSent(function (Request $request) {
         return $request['php_version'] === 'php83';
     });
@@ -77,7 +76,6 @@ it('PHP version can be changed', function () {
     Http::fake();
     (new Sandbox)->createSite();
 
-    // Check that the createSite function called the right endpoint
     Http::assertSent(function (Request $request) {
         return $request['php_version'] === 'php82';
     });
@@ -123,7 +121,6 @@ it('Allows overriding the web directory', function ($expected, $actual) {
     Http::fake();
     (new Sandbox)->createSite();
 
-    // Check that the createSite function called the right endpoint
     Http::assertSent(function (Request $request) use ($actual) {
         return $request['directory'] === $actual;
     });
@@ -133,3 +130,24 @@ it('Allows overriding the web directory', function ($expected, $actual) {
     [null, '/public'],
     ['', '/public'],
 ]);
+
+it('creates a database when the db config is enabled', function ($enabled) {
+    Config::set('forge.domain', 'trendyminds.io');
+    Config::set('forge.app_id', 'fake');
+    Config::set('forge.pr_number', 1234);
+
+    if ($enabled) {
+        Config::set('forge.enable_db', true);
+    }
+
+    Http::fake();
+    (new Sandbox)->createSite();
+
+    Http::assertSent(function (Request $request) use ($enabled) {
+        if ($enabled) {
+            return $request['database'] === 'fake_1234';
+        }
+
+        return $request['database'] === null;
+    });
+})->with([true, false]);

@@ -12,6 +12,11 @@ class Sandbox
      */
     public string $url;
 
+    /**
+     * The name of the sandbox's database
+     */
+    public ?string $databaseName;
+
     public function __construct()
     {
         $this->validate(config('forge'));
@@ -27,6 +32,7 @@ class Sandbox
             'project_type' => 'php',
             'php_version' => config('forge.php_version'),
             'directory' => config('forge.web_directory'),
+            'database' => $this->databaseName,
         ]);
     }
 
@@ -48,5 +54,8 @@ class Sandbox
 
         // Initialize variables
         $this->url = config('forge.app_id').'-'.config('forge.pr_number').'.'.config('forge.domain');
+        $this->databaseName = config('forge.enable_db')
+            ? config('forge.app_id').'_'.config('forge.pr_number')
+            : null;
     }
 }

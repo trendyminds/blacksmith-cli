@@ -24,11 +24,10 @@ return [
     // The document root for the site
     'web_directory' => env('FORGE_WEB_DIRECTORY', '/public'),
 
-    // 'subdomain' => env('FORGE_SUBDOMAIN'),
+    // If a database should be created for the site
+    'enable_db' => env('FORGE_ENABLE_DB', false),
 
     // 'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
-
-    // 'enable_db' => env('FORGE_ENABLE_DB', false),
 
     // 'db_password' => env('FORGE_DB_PASSWORD'),
 
