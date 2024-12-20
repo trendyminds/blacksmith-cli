@@ -24,8 +24,8 @@ class DestroyCommand extends Command
     {
         $sandbox = new Sandbox;
 
-        // Create a database backup if the site has one and a backup provider is set
-        if (config('forge.enable_db') && config('forge.backup_provider')) {
+        // Create a database backup if the site has a backup provider set
+        if (config('forge.backup_provider')) {
             $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
         }
 
