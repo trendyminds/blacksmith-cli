@@ -27,6 +27,12 @@ return [
     // If a database should be created for the site
     'enable_db' => env('FORGE_ENABLE_DB', false),
 
+    // The org/repo to deploy
+    'repo' => env('FORGE_REPO'),
+
+    // The branch to deploy
+    'branch' => env('FORGE_BRANCH'),
+
     // 'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
 
     // 'db_password' => env('FORGE_DB_PASSWORD'),

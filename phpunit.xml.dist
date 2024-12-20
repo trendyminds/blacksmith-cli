@@ -20,5 +20,7 @@
     <php>
         <env name="FORGE_TOKEN" value="123" />
         <env name="FORGE_SERVER" value="1" />
+        <env name="FORGE_REPO" value="org/repo" />
+        <env name="FORGE_BRANCH" value="foo" />
     </php>
 </phpunit>

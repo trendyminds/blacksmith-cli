@@ -25,7 +25,7 @@ class CreateCommand extends Command
     {
         $sandbox = new Sandbox;
         $this->components->task('Creating sandbox', fn () => $sandbox->createSite());
-        // $this->components->task('Mounting the repository', fn () => $sandbox->mountRepository());
+        $this->components->task('Mounting the repository', fn () => $sandbox->mountRepository());
         // $this->components->task('Updating the deployment script', fn () => $sandbox->updateDeployScript());
         // $this->components->task('Updating the environment variables', fn () => $sandbox->updateEnvironmentVars());
         // $this->components->task('Initiating first deploy', fn () => $sandbox->deploy());
