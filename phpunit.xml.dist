@@ -17,4 +17,8 @@
             <directory>./app</directory>
         </include>
     </source>
+    <php>
+        <env name="FORGE_TOKEN" value="123" />
+        <env name="FORGE_SERVER" value="1" />
+    </php>
 </phpunit>

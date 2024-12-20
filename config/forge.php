@@ -3,33 +3,44 @@
 use Laravel\Forge\Resources\InstallableServices;
 
 return [
+    // The Forge API token
     'token' => env('FORGE_TOKEN'),
 
+    // The Forge server to deploy to
     'server' => env('FORGE_SERVER'),
 
+    // The identifier for your app used for your database and URL (Ex: {app_id}-{pr_number}.{domain})
+    'app_id' => env('FORGE_APP_ID'),
+
+    // The PR number for the current deployment
+    'pr_number' => env('FORGE_PR_NUMBER'),
+
+    // The PHP version to use for the site
     'php_version' => env('FORGE_PHP_VERSION', InstallableServices::PHP_83),
 
-    'subdomain' => env('FORGE_SUBDOMAIN'),
-
+    // The domain to use for the site
     'domain' => env('FORGE_DOMAIN'),
 
-    'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
-
+    // The document root for the site
     'web_directory' => env('FORGE_WEB_DIRECTORY', '/public'),
 
-    'enable_db' => env('FORGE_ENABLE_DB', false),
+    // 'subdomain' => env('FORGE_SUBDOMAIN'),
 
-    'db_password' => env('FORGE_DB_PASSWORD'),
+    // 'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
 
-    'env_vars' => env('FORGE_ENV_VARS'),
+    // 'enable_db' => env('FORGE_ENABLE_DB', false),
 
-    'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
+    // 'db_password' => env('FORGE_DB_PASSWORD'),
 
-    'backup_region' => env('FORGE_BACKUP_REGION'),
+    // 'env_vars' => env('FORGE_ENV_VARS'),
 
-    'backup_bucket' => env('FORGE_BACKUP_BUCKET'),
+    // 'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
 
-    'backup_access_key' => env('FORGE_BACKUP_ACCESS_KEY'),
+    // 'backup_region' => env('FORGE_BACKUP_REGION'),
 
-    'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
+    // 'backup_bucket' => env('FORGE_BACKUP_BUCKET'),
+
+    // 'backup_access_key' => env('FORGE_BACKUP_ACCESS_KEY'),
+
+    // 'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
 ];
