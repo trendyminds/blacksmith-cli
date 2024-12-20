@@ -4,6 +4,7 @@ namespace App\Data;
 
 use App\Helpers\EnvironmentVariables;
 use Exception;
+use Illuminate\Support\Facades\Http;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Database;
 use Laravel\Forge\Resources\Site;
@@ -201,6 +202,53 @@ class Sandbox
     public function deploy(): void
     {
         $this->getSite()->deploySite(false);
+    }
+
+    public function createDbBackup(): void
+    {
+        // Only run if a database is enabled
+        if (! $this->getDatabase()) {
+            return;
+        }
+
+        $backup = $this->forge->createBackupConfiguration($this->server, [
+            'provider' => config('forge.backup_provider'),
+            'credentials' => [
+                'region' => config('forge.backup_region'),
+                'bucket' => config('forge.backup_bucket'),
+                'access_key' => config('forge.backup_access_key'),
+                'secret_key' => config('forge.backup_secret_key'),
+            ],
+            'frequency' => [
+                'type' => 'weekly',
+                'time' => '01:00',
+                'day' => 0,
+            ],
+            'directory' => 'blacksmith-backups',
+            'retention' => 7,
+            'databases' => [
+                $this->getDatabase()->id,
+            ],
+        ]);
+
+        // Wait 30 seconds before starting the backup
+        // Unfortunately these are all async processes
+        sleep(30);
+
+        // Initiate backup
+        // The Forge SDK does not have a method for dealing with this
+        Http::withHeaders([
+            'Authorization' => 'Bearer '.config('forge.token'),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ])->post("https://forge.laravel.com/api/v1/servers/{$this->server}/backup-configs/{$backup->id}");
+
+        // Wait 60 seconds before starting the backup
+        // Unfortunately these are all async processes
+        sleep(60);
+
+        // Delete the backup configuration after the backup is complete
+        $backup->delete();
     }
 
     /**

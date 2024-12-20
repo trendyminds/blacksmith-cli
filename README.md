@@ -84,22 +84,31 @@ jobs:
 
 ## ⚙️ Configuration options
 
-| Environment Name       |  Default value  |  Description                                                                                                            |
-|------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------|
-| `FORGE_TOKEN`          |                 | The [API token](https://forge.laravel.com/docs/accounts/api) to use to authenticate to your Forge account               |
-| `FORGE_SERVER`         |                 | The ID of the server to use when provisioning new sites                                                                 |
-| `FORGE_PHP_VERSION`    | `php83`         | The version of PHP to use                                                                                               |
-| `FORGE_SUBDOMAIN`      |                 | The subdomain for your application (Ex: `my-feature-123`)                                                               |
-| `FORGE_DOMAIN`         |                 | The domain to use (Ex: `domain.com`)                                                                                    |
-| `FORGE_DEPLOY_SCRIPT`  |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)   |
-| `FORGE_ENV_VARS`       |                 | Environment variables to append (or replace if they already exist)                                                      |
-| `FORGE_WEB_DIRECTORY`  | `/public`       | The public root of the site                                                                                             |
-| `FORGE_ENABLE_DB`      | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment         |
-| `FORGE_DB_PASSWORD`    |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically          |
-| `GITHUB_TOKEN`         |                 | Used to create a post-deploy comment within the pull request                                                            |
-| `GITHUB_REPO`          |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
-| `GITHUB_BRANCH`        |                 | The branch to use when mounting your repo to the site                                                                  |
-| `GITHUB_PR_NUMBER`     |                 | The pull request number used to create a post-deploy comment within the pull request                                   |
+| Environment Name           |  Default value  |  Description                                                                                                            |
+|----------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------|
+| `FORGE_TOKEN`              |                 | The [API token](https://forge.laravel.com/docs/accounts/api) to use to authenticate to your Forge account               |
+| `FORGE_SERVER`             |                 | The ID of the server to use when provisioning new sites                                                                 |
+| `FORGE_PHP_VERSION`        | `php83`         | The version of PHP to use                                                                                               |
+| `FORGE_SUBDOMAIN`          |                 | The subdomain for your application (Ex: `my-feature-123`)                                                               |
+| `FORGE_DOMAIN`             |                 | The domain to use (Ex: `domain.com`)                                                                                    |
+| `FORGE_DEPLOY_SCRIPT`      |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)   |
+| `FORGE_ENV_VARS`           |                 | Environment variables to append (or replace if they already exist)                                                      |
+| `FORGE_WEB_DIRECTORY`      | `/public`       | The public root of the site                                                                                             |
+| `FORGE_ENABLE_DB`          | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment         |
+| `FORGE_DB_PASSWORD`        |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically          |
+| `FORGE_BACKUP_PROVIDER`    |                 | When set and when your sandbox uses a database it will be backed up to this provider. Accepts `s3` or `spaces`          |
+| `FORGE_BACKUP_REGION`      |                 | The region for the backup service you are using                                                                        |
+| `FORGE_BACKUP_BUCKET`      |                 | The bucket to use for the backup                                                                                       |
+| `FORGE_BACKUP_ACCESS_KEY`  |                 | The access key for connecting to the bucket                                                                            |
+| `FORGE_BACKUP_SECRET_KEY`  |                 | The secret key for connecting to the bucket                                                                            |
+| `GITHUB_TOKEN`             |                 | Used to create a post-deploy comment within the pull request                                                           |
+| `GITHUB_REPO`              |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
+| `GITHUB_BRANCH`            |                 | The branch to use when mounting your repo to the site                                                                  |
+| `GITHUB_PR_NUMBER`         |                 | The pull request number used to create a post-deploy comment within the pull request                                   |
+
+## 🔒 Backups
+
+Unfortunately, Forge's backup configuration and storage processes are asynchronous and, because of this, a lengthy and arbitrary `sleep()` method is used when running these. That means it's _possible_ a database backup when your sandbox is decommissioned may not complete successfully. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
 
 ## <img src="docs/statamic.svg" alt="Statamic"> Statamic notes
 

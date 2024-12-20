@@ -23,6 +23,12 @@ class DestroyCommand extends Command
     public function handle()
     {
         $sandbox = new Sandbox;
+
+        // Create a database backup if the site has one and a backup provider is set
+        if (config('forge.enable_db') && config('forge.backup_provider')) {
+            $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
+        }
+
         $this->components->task('Destroying sandbox', fn () => $sandbox->destroy());
     }
 }

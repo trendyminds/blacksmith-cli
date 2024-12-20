@@ -22,4 +22,14 @@ return [
     'db_password' => env('FORGE_DB_PASSWORD'),
 
     'env_vars' => env('FORGE_ENV_VARS'),
+
+    'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
+
+    'backup_region' => env('FORGE_BACKUP_REGION'),
+
+    'backup_bucket' => env('FORGE_BACKUP_BUCKET'),
+
+    'backup_access_key' => env('FORGE_BACKUP_ACCESS_KEY'),
+
+    'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
 ];
