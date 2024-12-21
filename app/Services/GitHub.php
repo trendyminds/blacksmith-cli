@@ -51,11 +51,11 @@ class GitHub
             'Authorization' => 'Bearer '.config('forge.github_token'),
         ])->withUrlParameters([
             'endpoint' => 'https://api.github.com',
-            'repo' => config('forge.repo'),
             'pr' => config('forge.pr_number'),
-        ])->post('{+endpoint}/repos/{repo}/issues/{pr}/comments', [
-            'body' => $message,
-        ]);
+        ])
+            ->post('{+endpoint}/repos/'.config('forge.repo').'/issues/{pr}/comments', [
+                'body' => $message,
+            ])->throw();
     }
 
     /**
@@ -89,10 +89,9 @@ class GitHub
             'Authorization' => 'Bearer '.config('forge.github_token'),
         ])->withUrlParameters([
             'endpoint' => 'https://api.github.com',
-            'repo' => config('forge.repo'),
             'pr' => config('forge.pr_number'),
-        ])->post('{+endpoint}/repos/{repo}/issues/{pr}/comments', [
+        ])->post('{+endpoint}/repos/'.config('forge.repo').'/issues/{pr}/comments', [
             'body' => $message,
-        ]);
+        ])->throw();
     }
 }
