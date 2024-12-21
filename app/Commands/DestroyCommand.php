@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Data\Sandbox;
+use App\Services\GitHub;
 use Exception;
 use LaravelZero\Framework\Commands\Command;
 
@@ -35,5 +36,6 @@ class DestroyCommand extends Command
         }
 
         $this->components->task('Destroying sandbox', fn () => $sandbox->destroy());
+        $this->components->task('Posting details to GitHub', fn () => GitHub::postDestroyDetails());
     }
 }

@@ -230,6 +230,7 @@ class Sandbox
             'deploy_script' => 'nullable|string',
             'env_vars' => 'nullable|string',
             'db_password' => 'nullable|string',
+            'github_token' => 'required|string',
             'backup_provider' => 'nullable|string',
             'backup_region' => 'required_with:backup_provider|nullable|string',
             'backup_bucket' => 'required_with:backup_provider|nullable|string',

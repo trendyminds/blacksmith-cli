@@ -56,4 +56,7 @@ return [
 
     // The secret key for the backup provider
     'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
+
+    // The token for the GitHub API to post details to the PR
+    'github_token' => env('FORGE_GITHUB_TOKEN'),
 ];
