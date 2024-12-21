@@ -55,6 +55,9 @@ return [
 
     'providers' => [
         App\Providers\AppServiceProvider::class,
+        Illuminate\Validation\ValidationServiceProvider::class,
+        Illuminate\Translation\TranslationServiceProvider::class,
+        Intonate\TinkerZero\TinkerZeroServiceProvider::class,
     ],
 
 ];

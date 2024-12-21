@@ -15,12 +15,25 @@ class EnvironmentVariables
             ->replaceMatches('/^DB_HOST=.*/m', 'DB_HOST=127.0.0.1')
             ->replaceMatches('/^DB_SERVER=.*/m', 'DB_SERVER=127.0.0.1')
             ->replaceMatches('/^DB_PORT=.*/m', 'DB_PORT=3306')
-            ->replaceMatches('/^DB_DATABASE=.*/m', 'DB_DATABASE='.$sandbox->getDatabaseName())
-            ->replaceMatches('/^DB_NAME=.*/m', 'DB_NAME='.$sandbox->getDatabaseName())
+            ->replaceMatches('/^DB_DATABASE=.*/m', 'DB_DATABASE='.$sandbox->databaseName)
+            ->replaceMatches('/^DB_NAME=.*/m', 'DB_NAME='.$sandbox->databaseName)
             ->replaceMatches('/^DB_USERNAME=.*/m', 'DB_USERNAME=forge')
             ->replaceMatches('/^DB_USER=.*/m', 'DB_USER=forge')
             ->replaceMatches('/^DB_PASSWORD=.*/m', 'DB_PASSWORD='.config('forge.db_password'))
             ->replaceMatches('/^DB_PASS=.*/m', 'DB_PASS='.config('forge.db_password'))
+            ->value();
+    }
+
+    /**
+     * Ensure most environments we interact with get site URL details set
+     */
+    public static function setUrl(string $currentEnv, Sandbox $sandbox): string
+    {
+        return str($currentEnv)
+            ->replaceMatches('/^APP_URL=.*/m', 'APP_URL=http://'.$sandbox->url)
+            ->replaceMatches('/^BASE_URL=.*/m', 'BASE_URL=http://'.$sandbox->url)
+            ->replaceMatches('/^SITE_URL=.*/m', 'SITE_URL=http://'.$sandbox->url)
+            ->replaceMatches('/^PRIMARY_SITE_URL=.*/m', 'PRIMARY_SITE_URL=http://'.$sandbox->url)
             ->value();
     }
 

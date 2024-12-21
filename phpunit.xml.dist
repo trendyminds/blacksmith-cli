@@ -17,4 +17,13 @@
             <directory>./app</directory>
         </include>
     </source>
+    <php>
+        <env name="FORGE_TOKEN" value="123" />
+        <env name="FORGE_SERVER" value="1" />
+        <env name="FORGE_APP_ID" value="fake" />
+        <env name="FORGE_PR_NUMBER" value="123" />
+        <env name="FORGE_DOMAIN" value="example.com" />
+        <env name="FORGE_REPO" value="org/repo" />
+        <env name="FORGE_BRANCH" value="foo" />
+    </php>
 </phpunit>
