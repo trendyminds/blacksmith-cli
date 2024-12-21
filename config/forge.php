@@ -42,13 +42,18 @@ return [
     // The primary `forge` user's database password
     'db_password' => env('FORGE_DB_PASSWORD'),
 
-    // 'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
+    // If a database is in use this will be used for backing it up before destroying the site
+    'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
 
-    // 'backup_region' => env('FORGE_BACKUP_REGION'),
+    // The region for the backup provider
+    'backup_region' => env('FORGE_BACKUP_REGION'),
 
-    // 'backup_bucket' => env('FORGE_BACKUP_BUCKET'),
+    // The bucket to store the backups in
+    'backup_bucket' => env('FORGE_BACKUP_BUCKET'),
 
-    // 'backup_access_key' => env('FORGE_BACKUP_ACCESS_KEY'),
+    // The access key for the backup provider
+    'backup_access_key' => env('FORGE_BACKUP_ACCESS_KEY'),
 
-    // 'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
+    // The secret key for the backup provider
+    'backup_secret_key' => env('FORGE_BACKUP_SECRET_KEY'),
 ];

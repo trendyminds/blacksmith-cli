@@ -30,9 +30,9 @@ class DestroyCommand extends Command
         }
 
         // Create a database backup if the site has a backup provider set
-        // if (config('forge.backup_provider')) {
-        //     $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
-        // }
+        if (config('forge.enable_db') && config('forge.backup_provider')) {
+            $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
+        }
 
         $this->components->task('Destroying sandbox', fn () => $sandbox->destroy());
     }

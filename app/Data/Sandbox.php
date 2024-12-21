@@ -3,6 +3,7 @@
 namespace App\Data;
 
 use App\Helpers\EnvironmentVariables;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Forge\Forge;
 use Laravel\Forge\Resources\Database;
@@ -145,6 +146,61 @@ class Sandbox
     }
 
     /**
+     * Creates a database backup via Forge's backup system
+     */
+    public function createDbBackup(): void
+    {
+        // Only run if a database is enabled
+        if (! $this->getDatabase()) {
+            return;
+        }
+
+        $backup = $this->forge->createBackupConfiguration(config('forge.server'), [
+            'provider' => config('forge.backup_provider'),
+            'credentials' => [
+                'region' => config('forge.backup_region'),
+                'bucket' => config('forge.backup_bucket'),
+                'access_key' => config('forge.backup_access_key'),
+                'secret_key' => config('forge.backup_secret_key'),
+            ],
+            'frequency' => [
+                'type' => 'weekly',
+                'time' => '01:00',
+                'day' => 0,
+            ],
+            'directory' => 'blacksmith-backups',
+            'retention' => 7,
+            'databases' => [
+                $this->getDatabase()->id,
+            ],
+        ]);
+
+        // Wait before starting the backup. Unfortunately these are all async processes
+        sleep(15);
+
+        // Initiate backup
+        // The Forge SDK does not have a method for dealing with this
+        Http::withHeaders([
+            'Authorization' => 'Bearer '.config('forge.token'),
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ])->withUrlParameters([
+            'endpoint' => 'https://forge.laravel.com/api/v1',
+            'server' => config('forge.server'),
+            'backupId' => $backup->id,
+        ])->post('{+endpoint}/servers/{server}/backup-configs/{backupId}');
+
+        // Wait before deleting the backup config. Unfortunately these are all async processes
+        sleep(45);
+
+        // Delete the backup configuration after the backup is complete
+        $backup->delete();
+
+        // Wait a moment before proceeding to subsequent steps
+        sleep(10);
+    }
+
+    /**
      * Removes the sandbox from Forge
      */
     public function destroy(): void
@@ -174,6 +230,11 @@ class Sandbox
             'deploy_script' => 'nullable|string',
             'env_vars' => 'nullable|string',
             'db_password' => 'nullable|string',
+            'backup_provider' => 'nullable|string',
+            'backup_region' => 'required_with:backup_provider|nullable|string',
+            'backup_bucket' => 'required_with:backup_provider|nullable|string',
+            'backup_access_key' => 'required_with:backup_provider|nullable|string',
+            'backup_secret_key' => 'required_with:backup_provider|nullable|string',
         ]);
 
         $validator->validate();
