@@ -11,7 +11,7 @@ When provisioning a sandbox you'll need:
 
 It is imperative to leverage GitHub secrets to ensure you are not commit this type of sensitive data to your codebase and potentially exposing this data to the outside world.
 
-## 🚀 Provisioning a sandbox
+## 🚀 Creating and destroying sandboxes
 
 Below is an example of a GitHub action that will create a new sandbox when it is labeled with a "sandbox" tag in the pull request. When the pull request is closed it will run the decommission action.
 
