@@ -1,0 +1,33 @@
+name: Code Style
+
+on: [pull_request]
+
+jobs:
+  style:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Cache composer dependencies
+      uses: actions/cache@v4
+      with:
+        path: vendor
+        key: composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: |
+          composer-
+
+    - uses: shivammathur/setup-php@v2
+      with:
+        php-version: 8.3
+        coverage: none
+
+    - name: Install Composer dependencies
+      run: composer install --no-interaction --prefer-dist --optimize-autoloader
+
+    - name: Run Prettier & Pint
+      run: ./vendor/bin/pint
+
+    - uses: stefanzweifel/git-auto-commit-action@v4
+      with:
+        commit_message: Apply formatting changes
