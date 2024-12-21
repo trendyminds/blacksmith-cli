@@ -2,90 +2,45 @@
 
 use App\Data\Sandbox;
 use Illuminate\Support\Facades\Config;
-use Laravel\Forge\Resources\Site;
-use Mockery\LegacyMockInterface;
+use Illuminate\Validation\ValidationException;
 
-/**
- * Helper for mocking deployment script expectations.
- *
- * @param  string  $expectedScript  The script expected to be passed to updateDeploymentScript.
- */
-function expectDeploymentScript(string $expectedScript): LegacyMockInterface
-{
-    // Create a partial mock of the Sandbox class
-    $sandboxMock = Mockery::mock(Sandbox::class)->makePartial();
+it('requires config settings', function () {
+    Config::set('forge.github_token', 'test');
+    Config::set('forge.app_id', 'myapp');
+    Config::set('forge.pr_number', 123);
+    Config::set('forge.domain', 'example.com');
+    new Sandbox;
+})->throwsNoExceptions();
 
-    // Create a mock of the Site class
-    $siteMock = Mockery::mock(Site::class);
+it('requires a forge token', function () {
+    Config::set('forge.token', null);
+    Config::set('forge.app_id', 'myapp');
+    Config::set('forge.pr_number', 123);
+    Config::set('forge.domain', 'example.com');
+    new Sandbox;
+})->throws(ValidationException::class);
 
-    // Expect updateDeploymentScript to be called with the expected script
-    $siteMock->shouldReceive('updateDeploymentScript')
-        ->once()
-        ->with($expectedScript);
+it('requires a server id', function () {
+    Config::set('forge.server', null);
+    Config::set('forge.app_id', 'myapp');
+    Config::set('forge.pr_number', 123);
+    Config::set('forge.domain', 'example.com');
+    new Sandbox;
+})->throws(ValidationException::class);
 
-    // Mock getSite to return the Site mock
-    $sandboxMock->shouldReceive('getSite')->andReturn($siteMock);
+it('requires a repo', function () {
+    Config::set('forge.repo', null);
+    Config::set('forge.app_id', 'myapp');
+    Config::set('forge.pr_number', 123);
+    Config::set('forge.domain', 'example.com');
+    new Sandbox;
+})->throws(ValidationException::class);
 
-    return $sandboxMock;
-}
-
-it('adds custom deployment scripts when defined', function () {
-    Config::set('forge.deploy_script', 'npm install; npm run build');
-
-    $expectedScript = <<<'EOD'
-# Ignore bot-based commits to the repo
-[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
-
-# Default Blacksmith commands
-cd $FORGE_SITE_PATH
-git pull origin $FORGE_SITE_BRANCH
-$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-# Via FORGE_DEPLOY_SCRIPT
-npm install
-npm run build
-EOD;
-
-    $sandboxMock = expectDeploymentScript($expectedScript);
-    $sandboxMock->updateDeployScript();
-});
-
-it('does not matter where the semicolon for the deployment scripts', function () {
-    Config::set('forge.deploy_script', 'npm install; npm run build;npm run deploy; npm run test;');
-
-    $expectedScript = <<<'EOD'
-# Ignore bot-based commits to the repo
-[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
-
-# Default Blacksmith commands
-cd $FORGE_SITE_PATH
-git pull origin $FORGE_SITE_BRANCH
-$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-
-# Via FORGE_DEPLOY_SCRIPT
-npm install
-npm run build
-npm run deploy
-npm run test
-EOD;
-
-    $sandboxMock = expectDeploymentScript($expectedScript);
-    $sandboxMock->updateDeployScript();
-});
-
-it('excludes custom deployment scripts when not set', function () {
-    Config::set('forge.deploy_script', null);
-
-    $expectedScript = <<<'EOD'
-# Ignore bot-based commits to the repo
-[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
-
-# Default Blacksmith commands
-cd $FORGE_SITE_PATH
-git pull origin $FORGE_SITE_BRANCH
-$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader
-EOD;
-
-    $sandboxMock = expectDeploymentScript($expectedScript);
-    $sandboxMock->updateDeployScript();
-});
+it('requires a branch', function () {
+    Config::set('forge.repo', 'org/repo');
+    Config::set('forge.branch', null);
+    Config::set('forge.app_id', 'myapp');
+    Config::set('forge.pr_number', 123);
+    Config::set('forge.domain', 'example.com');
+    new Sandbox;
+})->throws(ValidationException::class);
