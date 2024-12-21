@@ -33,11 +33,14 @@ return [
     // The branch to deploy
     'branch' => env('FORGE_BRANCH'),
 
-    // 'deploy_script' => env('FORGE_DEPLOY_SCRIPT'),
+    // Additional deploy commands to run after the default deploy script
+    'deploy_script' => env('FORGE_DEPLOY_SCRIPT', ''),
 
-    // 'db_password' => env('FORGE_DB_PASSWORD'),
+    // Additional environment variables to set (or replace if they already exist)
+    'env_vars' => env('FORGE_ENV_VARS'),
 
-    // 'env_vars' => env('FORGE_ENV_VARS'),
+    // The primary `forge` user's database password
+    'db_password' => env('FORGE_DB_PASSWORD'),
 
     // 'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
 

@@ -10,7 +10,7 @@ class GitHub
     /**
      * Posts a deployment notice on the pull request that triggered the deployment.
      */
-    public static function postDeployDetails(): void
+    public static function postCreateDetails(): void
     {
         $sandbox = new Sandbox;
         $githubToken = config('github.token');

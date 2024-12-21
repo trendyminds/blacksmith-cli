@@ -3,6 +3,7 @@
 namespace App\Commands;
 
 use App\Data\Sandbox;
+use Exception;
 use LaravelZero\Framework\Commands\Command;
 
 class DestroyCommand extends Command
@@ -24,10 +25,14 @@ class DestroyCommand extends Command
     {
         $sandbox = new Sandbox;
 
-        // Create a database backup if the site has a backup provider set
-        if (config('forge.backup_provider')) {
-            $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
+        if (! $sandbox->getSite()) {
+            throw new Exception('There is no sandbox to destroy');
         }
+
+        // Create a database backup if the site has a backup provider set
+        // if (config('forge.backup_provider')) {
+        //     $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
+        // }
 
         $this->components->task('Destroying sandbox', fn () => $sandbox->destroy());
     }
