@@ -13,19 +13,29 @@ It is imperative to leverage GitHub secrets to ensure you are not commit this ty
 
 ## 🚀 Provisioning a sandbox
 
-Below is an example of a GitHub action that will create a new sandbox when it is labeled with a "sandbox" tag in the pull request.
+Below is an example of a GitHub action that will create a new sandbox when it is labeled with a "sandbox" tag in the pull request. When the pull request is closed it will run the decommission action.
 
 ```yaml
-name: Provision Sandbox
+name: Sandbox
 
 on:
   pull_request:
-    types: [labeled, reopened]
+    types: [labeled, reopened, closed]
 
 jobs:
   sandbox:
     if: contains(github.event.pull_request.labels.*.name, 'sandbox')
     runs-on: ubuntu-latest
+    env:
+      FORGE_APP_ID: app
+      FORGE_DOMAIN: example.com
+      FORGE_DEPLOY_SCRIPT: "npm install; npm run build"
+      FORGE_TOKEN: ${{ secrets.BLACKSMITH_FORGE_TOKEN }}
+      FORGE_SERVER: ${{ secrets.BLACKSMITH_SANDBOX_SERVER }}
+      FORGE_REPO: ${{ github.repository }}
+      FORGE_BRANCH: ${{ github.head_ref }}
+      FORGE_PR_NUMBER: ${{ github.event.number }}
+      FORGE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
     - uses: actions/checkout@v2
     - uses: shivammathur/setup-php@v2
@@ -34,51 +44,11 @@ jobs:
         coverage: none
     - name: Install Blacksmith
       run: composer global require trendyminds/blacksmith-cli
-    - name: Start Provisioning
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GITHUB_REPO: ${{ github.repository }}
-        GITHUB_BRANCH: ${{ github.head_ref }}
-        GITHUB_PR_NUMBER: ${{ github.event.number }}
-        FORGE_TOKEN: ${{ secrets.BLACKSMITH_FORGE_TOKEN }}
-        FORGE_SERVER: ${{ secrets.BLACKSMITH_SANDBOX_SERVER }}
-        FORGE_SUBDOMAIN: site-${{ github.event.number }}
-        FORGE_DOMAIN: mydomain.io
-        FORGE_DEPLOY_SCRIPT: "npm install; npm run build"
+    - name: Create Sandbox (If PR was just opened or reopened)
+      if: github.event.action != 'closed'
       run: blacksmith create
-```
-
-## 🗑️ Decommissioning a sandbox
-
-Below is an example of a GitHub action that will decommission a sandbox after it is merged or closed.
-
-```yaml
-name: Decommission Sandbox
-
-on:
-  pull_request:
-    types: [closed]
-
-jobs:
-  sandbox:
-    if: contains(github.event.pull_request.labels.*.name, 'sandbox')
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    - uses: shivammathur/setup-php@v2
-      with:
-        php-version: 8.3
-        coverage: none
-    - name: Install Blacksmith
-      run: composer global require trendyminds/blacksmith-cli
-    - name: Destroy sandbox
-      env:
-        GITHUB_REPO: ${{ github.repository }}
-        GITHUB_BRANCH: ${{ github.head_ref }}
-        FORGE_TOKEN: ${{ secrets.BLACKSMITH_FORGE_TOKEN }}
-        FORGE_SERVER: ${{ secrets.BLACKSMITH_SANDBOX_SERVER }}
-        FORGE_SUBDOMAIN: site-${{ github.event.number }}
-        FORGE_DOMAIN: mydomain.io
+    - name: Destroy Sandbox (When PR is closed)
+      if: github.event.action == 'closed'
       run: blacksmith destroy
 ```
 
@@ -88,8 +58,9 @@ jobs:
 |----------------------------|-----------------|-------------------------------------------------------------------------------------------------------------------------|
 | `FORGE_TOKEN`              |                 | The [API token](https://forge.laravel.com/docs/accounts/api) to use to authenticate to your Forge account               |
 | `FORGE_SERVER`             |                 | The ID of the server to use when provisioning new sites                                                                 |
+| `FORGE_APP_ID`             |                 | The prefix for your domain and database                                                                                 |
+| `FORGE_PR_NUMBER`          |                 | The PR number for your sandbox pull request                                                                             |
 | `FORGE_PHP_VERSION`        | `php83`         | The version of PHP to use                                                                                               |
-| `FORGE_SUBDOMAIN`          |                 | The subdomain for your application (Ex: `my-feature-123`)                                                               |
 | `FORGE_DOMAIN`             |                 | The domain to use (Ex: `domain.com`)                                                                                    |
 | `FORGE_DEPLOY_SCRIPT`      |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)   |
 | `FORGE_ENV_VARS`           |                 | Environment variables to append (or replace if they already exist)                                                      |
@@ -101,10 +72,9 @@ jobs:
 | `FORGE_BACKUP_BUCKET`      |                 | The bucket to use for the backup                                                                                       |
 | `FORGE_BACKUP_ACCESS_KEY`  |                 | The access key for connecting to the bucket                                                                            |
 | `FORGE_BACKUP_SECRET_KEY`  |                 | The secret key for connecting to the bucket                                                                            |
-| `GITHUB_TOKEN`             |                 | Used to create a post-deploy comment within the pull request                                                           |
-| `GITHUB_REPO`              |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
-| `GITHUB_BRANCH`            |                 | The branch to use when mounting your repo to the site                                                                  |
-| `GITHUB_PR_NUMBER`         |                 | The pull request number used to create a post-deploy comment within the pull request                                   |
+| `FORGE_GITHUB_TOKEN`       |                 | Used to create a post-deploy comment within the pull request                                                           |
+| `FORGE_REPO`               |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                      |
+| `FORGE_BRANCH`             |                 | The branch to use when mounting your repo to the site                                                                  |
 
 ## 🔒 Backups
 
