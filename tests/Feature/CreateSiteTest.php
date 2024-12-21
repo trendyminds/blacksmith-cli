@@ -45,7 +45,6 @@ it('creates a new sandbox with minimum info', function ($domain, $app_id, $pr_nu
                 'project_type' => 'php',
                 'php_version' => 'php83',
                 'directory' => '/public',
-                'database' => null,
             ];
     });
 })->with([
@@ -148,6 +147,6 @@ it('creates a database when the db config is enabled', function ($enabled) {
             return $request['database'] === 'fake_1234';
         }
 
-        return $request['database'] === null;
+        return ! array_key_exists('database', $request->data());
     });
 })->with([true, false]);

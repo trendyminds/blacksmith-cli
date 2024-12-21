@@ -27,13 +27,18 @@ class Sandbox
      */
     public function createSite(): void
     {
-        Http::forge()->post('servers/{serverId}/sites', [
+        $payload = [
             'domain' => $this->url,
             'project_type' => 'php',
             'php_version' => config('forge.php_version'),
             'directory' => config('forge.web_directory'),
-            'database' => $this->databaseName,
-        ]);
+        ];
+
+        if ($this->databaseName) {
+            $payload['database'] = $this->databaseName;
+        }
+
+        Http::forge()->post('servers/{serverId}/sites', $payload);
     }
 
     /**
