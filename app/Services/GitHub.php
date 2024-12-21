@@ -32,7 +32,7 @@ class GitHub
         if ($sandbox->getDatabase()) {
             $message .= "\n";
             $message .= <<<EOT
-    | **Database**          | `{$sandbox->getDatabase()->name}`          |
+    | **Database**          | `{$sandbox->databaseName}`                 |
     | **Database User**     | `forge`                                    |
     | **Database Password** | The default `forge` database password      |
     EOT;
@@ -72,7 +72,7 @@ class GitHub
         if (config('forge.enable_db') && config('forge.backup_provider')) {
             $message .= "\n";
             $message .= <<<EOT
-    In addition to closing out this sandbox the database `{$sandbox->getDatabase()->name}` has been backed up to your backup provider.
+    In addition to closing out this sandbox the database `{$sandbox->databaseName}` has been backed up to your backup provider.
     EOT;
         }
 
