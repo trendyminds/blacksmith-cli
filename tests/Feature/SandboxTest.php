@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Validation\ValidationException;
 
 it('requires config settings', function () {
+    Config::set('forge.github_token', 'test');
     Config::set('forge.app_id', 'myapp');
     Config::set('forge.pr_number', 123);
     Config::set('forge.domain', 'example.com');
