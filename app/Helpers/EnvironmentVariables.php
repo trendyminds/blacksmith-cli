@@ -13,13 +13,18 @@ class EnvironmentVariables
     {
         return str($currentEnv)
             ->replaceMatches('/^DB_HOST=.*/m', 'DB_HOST=127.0.0.1')
+            ->replaceMatches('/^CRAFT_DB_SERVER=.*/m', 'CRAFT_DB_SERVER=127.0.0.1')
             ->replaceMatches('/^DB_SERVER=.*/m', 'DB_SERVER=127.0.0.1')
             ->replaceMatches('/^DB_PORT=.*/m', 'DB_PORT=3306')
+            ->replaceMatches('/^CRAFT_DB_PORT=.*/m', 'CRAFT_DB_PORT=3306')
             ->replaceMatches('/^DB_DATABASE=.*/m', 'DB_DATABASE='.$sandbox->databaseName)
+            ->replaceMatches('/^CRAFT_DB_DATABASE=.*/m', 'CRAFT_DB_DATABASE='.$sandbox->databaseName)
             ->replaceMatches('/^DB_NAME=.*/m', 'DB_NAME='.$sandbox->databaseName)
             ->replaceMatches('/^DB_USERNAME=.*/m', 'DB_USERNAME=forge')
+            ->replaceMatches('/^CRAFT_DB_USER=.*/m', 'CRAFT_DB_USER=forge')
             ->replaceMatches('/^DB_USER=.*/m', 'DB_USER=forge')
             ->replaceMatches('/^DB_PASSWORD=.*/m', 'DB_PASSWORD='.config('forge.db_password'))
+            ->replaceMatches('/^CRAFT_DB_PASSWORD=.*/m', 'CRAFT_DB_PASSWORD='.config('forge.db_password'))
             ->replaceMatches('/^DB_PASS=.*/m', 'DB_PASS='.config('forge.db_password'))
             ->value();
     }
