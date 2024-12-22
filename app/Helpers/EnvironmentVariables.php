@@ -24,7 +24,7 @@ class EnvironmentVariables
             ->replaceMatches('/^CRAFT_DB_USER=.*/m', 'CRAFT_DB_USER=forge')
             ->replaceMatches('/^DB_USER=.*/m', 'DB_USER=forge')
             ->replaceMatches('/^DB_PASSWORD=.*/m', 'DB_PASSWORD='.config('forge.db_password'))
-            ->replaceMatches('/^CRAFT_DB_PASSWORD=.*/m', 'CRAFT_DB_PASSWORD='.config('forge.db_password'))
+            // ->replaceMatches('/^CRAFT_DB_PASSWORD=.*/m', 'CRAFT_DB_PASSWORD='.config('forge.db_password'))
             ->replaceMatches('/^DB_PASS=.*/m', 'DB_PASS='.config('forge.db_password'))
             ->value();
     }
