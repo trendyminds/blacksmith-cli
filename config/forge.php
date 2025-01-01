@@ -40,7 +40,7 @@ return [
     'env_vars' => env('FORGE_ENV_VARS'),
 
     // The primary `forge` user's database password
-    'db_password' => env('FORGE_DB_PASSWORD'),
+    'db_password' => env('FORGE_DB_PASSWORD', ''),
 
     // If a database is in use this will be used for backing it up before destroying the site
     'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
