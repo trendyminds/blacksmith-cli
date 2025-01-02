@@ -81,16 +81,16 @@ class Sandbox
 
         // Execute any post-mount commands if they exist
         if (config('forge.post_mount_commands')) {
-            $cmds = str(config('forge.post_mount_commands'))
+            $commandString = str(config('forge.post_mount_commands'))
                 ->explode(';')
                 ->filter()
                 ->map(fn ($command) => str($command)->trim()->value())
-                ->toArray();
+                ->join(' && ');
 
             $this->forge->executeSiteCommand(
                 config('forge.server'),
                 $this->getSite()->id,
-                $cmds,
+                ["command" => $commandString],
             );
         }
     }
