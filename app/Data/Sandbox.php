@@ -75,9 +75,18 @@ class Sandbox
             'repository' => config('forge.repo'),
             'branch' => config('forge.branch'),
             'database' => $this->databaseName,
-            'composer' => true,
+            'composer' => config('forge.composer_install_on_mount'),
             'migrate' => false,
         ])->enableQuickDeploy();
+
+        // Execute any post-mount commands if they exist
+        if (config('forge.post_mount_commands')) {
+            $this->forge->executeSiteCommand(
+                config('forge.server'),
+                $this->getSite()->id,
+                config('forge.post_mount_commands'),
+            );
+        }
     }
 
     /**

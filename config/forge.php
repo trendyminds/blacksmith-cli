@@ -34,6 +34,9 @@ return [
     'branch' => env('FORGE_BRANCH'),
 
     // Additional deploy commands to run after the default deploy script
+    'composer_install_on_mount' => env('FORGE_COMPOSER_INSTALL_ON_MOUNT', true),
+
+    // Additional deploy commands to run after the default deploy script
     'deploy_script' => env('FORGE_DEPLOY_SCRIPT', ''),
 
     // Additional environment variables to set (or replace if they already exist)
@@ -59,4 +62,7 @@ return [
 
     // The token for the GitHub API to post details to the PR
     'github_token' => env('FORGE_GITHUB_TOKEN'),
+
+    // Post-mount commands to run
+    'post_mount_commands' => env('FORGE_POST_MOUNT_COMMANDS'),
 ];
