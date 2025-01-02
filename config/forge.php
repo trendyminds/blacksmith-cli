@@ -63,6 +63,9 @@ return [
     // The token for the GitHub API to post details to the PR
     'github_token' => env('FORGE_GITHUB_TOKEN'),
 
+    // Path to the composer.json file (if not in the root of the repo)
+    'path_to_composer_file' => env('FORGE_PATH_TO_COMPOSER_FILE'),
+
     // Post-mount commands to run
     'post_mount_commands' => env('FORGE_POST_MOUNT_COMMANDS'),
 ];

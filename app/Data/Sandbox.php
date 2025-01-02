@@ -107,8 +107,16 @@ class Sandbox
             '# Default Blacksmith commands',
             'cd $FORGE_SITE_PATH',
             'git pull origin $FORGE_SITE_BRANCH',
-            '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader',
         ];
+
+        // Setup composer install command and append the working directory flag if necessary
+        $composerCmd = '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader';
+
+        if (config('forge.path_to_composer_file')) {
+            $composerCmd .= " --working-dir=" . config('forge.path_to_composer_file');
+        }
+
+        $defaultCommands[] = $composerCmd;
 
         $userCommands = str(config('forge.deploy_script'))
             ->explode(';')
