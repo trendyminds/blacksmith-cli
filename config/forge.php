@@ -68,4 +68,7 @@ return [
 
     // Post-mount commands to run
     'post_mount_commands' => env('FORGE_POST_MOUNT_COMMANDS'),
+
+    // Install a Let's Encrypt SSL
+    'install_ssl' => env('FORGE_INSTALL_SSL', false),
 ];

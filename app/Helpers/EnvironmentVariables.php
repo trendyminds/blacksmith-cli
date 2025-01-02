@@ -35,10 +35,10 @@ class EnvironmentVariables
     public static function setUrl(string $currentEnv, Sandbox $sandbox): string
     {
         return str($currentEnv)
-            ->replaceMatches('/^APP_URL=.*/m', 'APP_URL=http://'.$sandbox->url)
-            ->replaceMatches('/^BASE_URL=.*/m', 'BASE_URL=http://'.$sandbox->url)
-            ->replaceMatches('/^SITE_URL=.*/m', 'SITE_URL=http://'.$sandbox->url)
-            ->replaceMatches('/^PRIMARY_SITE_URL=.*/m', 'PRIMARY_SITE_URL=http://'.$sandbox->url)
+            ->replaceMatches('/^APP_URL=.*/m', 'APP_URL='.$sandbox->fullUrl)
+            ->replaceMatches('/^BASE_URL=.*/m', 'BASE_URL='.$sandbox->fullUrl)
+            ->replaceMatches('/^SITE_URL=.*/m', 'SITE_URL='.$sandbox->fullUrl)
+            ->replaceMatches('/^PRIMARY_SITE_URL=.*/m', 'PRIMARY_SITE_URL='.$sandbox->fullUrl)
             ->value();
     }
 

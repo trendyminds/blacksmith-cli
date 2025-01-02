@@ -36,6 +36,11 @@ class CreateCommand extends Command
         $this->components->task('Updating the deployment script', fn () => $sandbox->updateDeployScript());
         $this->components->task('Updating the environment variables', fn () => $sandbox->updateEnvironmentVars());
         $this->components->task('Initiating first deploy', fn () => $sandbox->deploy());
+
+        if (config('forge.install_ssl')) {
+            $this->components->task('Installing SSL certificate', fn () => $sandbox->installSSL());
+        }
+
         $this->components->task('Posting details to GitHub', fn () => GitHub::postCreateDetails());
     }
 }

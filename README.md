@@ -62,6 +62,7 @@ jobs:
 | `FORGE_PR_NUMBER`                  |                 | The PR number for your sandbox pull request                                                                                |
 | `FORGE_PHP_VERSION`                | `php83`         | The version of PHP to use                                                                                                  |
 | `FORGE_DOMAIN`                     |                 | The domain to use (Ex: `domain.com`)                                                                                       |
+| `FORGE_INSTALL_SSL`                | `false`         | When enabled, a Let's Encrypt SSL will be provisioned for the domain                                                       |
 | `FORGE_DEPLOY_SCRIPT`              |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)      |
 | `FORGE_ENV_VARS`                   |                 | Environment variables to append (or replace if they already exist)                                                         |
 | `FORGE_ENV_VARS`                   |                 | Environment variables to append (or replace if they already exist)                                                         |

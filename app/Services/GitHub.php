@@ -24,7 +24,7 @@ class GitHub
     A sandbox for this pull request was just provisioned by [Blacksmith](https://github.com/trendyminds/blacksmith-cli/). Details regarding your sandbox:
     | Info              | Details                                      |
     |-------------------|----------------------------------------------|
-    | **URL**           | http://{$sandbox->url}                       |
+    | **URL**           | {$sandbox->fullUrl}                          |
     | **PHP Version**   | {$phpVersion}                                |
     | **Web Root**      | {$webRoot}                                   |
     EOT;

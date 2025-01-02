@@ -12,9 +12,14 @@ use Laravel\Forge\Resources\Site;
 class Sandbox
 {
     /**
-     * The full URL to the sandbox
+     * The URL for the sandbox
      */
     public string $url;
+
+    /**
+     * The full URL (including protocol) for the sandbox
+     */
+    public string $fullUrl;
 
     /**
      * The name of the sandbox's database
@@ -90,9 +95,21 @@ class Sandbox
             $this->forge->executeSiteCommand(
                 config('forge.server'),
                 $this->getSite()->id,
-                ["command" => $commandString],
+                ['command' => $commandString],
             );
         }
+    }
+
+    /**
+     * Installs a Let's Encrypt SSL certificate on the site
+     */
+    public function installSSL(): void
+    {
+        $this->forge->obtainLetsEncryptCertificate(
+            config('forge.server'),
+            $this->getSite()->id,
+            ['domains' => [$this->url]],
+        );
     }
 
     /**
@@ -113,7 +130,7 @@ class Sandbox
         $composerCmd = '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader';
 
         if (config('forge.path_to_composer_file')) {
-            $composerCmd .= " --working-dir=" . config('forge.path_to_composer_file');
+            $composerCmd .= ' --working-dir='.config('forge.path_to_composer_file');
         }
 
         $defaultCommands[] = $composerCmd;
@@ -265,6 +282,7 @@ class Sandbox
 
         // Initialize variables
         $this->url = config('forge.app_id').'-'.config('forge.pr_number').'.'.config('forge.domain');
+        $this->fullUrl = config('forge.install_ssl') ? 'https://'.$this->url : 'http://'.$this->url;
         $this->databaseName = config('forge.enable_db')
             ? config('forge.app_id').'_'.config('forge.pr_number')
             : null;
