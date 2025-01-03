@@ -97,6 +97,11 @@ class Sandbox
                 $this->getSite()->id,
                 ['command' => $commandString],
             );
+
+            // Unfortunately, the Forge SDK does not have a method for waiting for the site commands to run
+            // so we might encounter a race condition if we try to run the next step too quickly.
+            // Waiting for a couple seconds should be enough time for the commands to run.
+            sleep(10);
         }
     }
 
