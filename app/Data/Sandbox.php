@@ -159,12 +159,12 @@ class Sandbox
      */
     public function updateEnvironmentVars(): void
     {
-        // If we have initial environment variables (from GitHub secrets), let's use that as the new starting point
-        if (config('forge.initial_env_vars')) {
+        // If environment variables are being set let's use that as the new starting point
+        if (config('forge.env_vars')) {
             $this->forge->updateSiteEnvironmentFile(
                 config('forge.server'),
                 $this->getSite()->id,
-                config('forge.initial_env_vars')
+                config('forge.env_vars')
             );
 
             // In case Forge is slow to update the environment file, let's wait a few seconds
@@ -178,10 +178,8 @@ class Sandbox
 
         // Ensure APP_ENV and ENVIRONMENT are always set to dev
         // Attempt to set the URL for the sandbox
-        // Replace or append user-supplied environment variables
         $newEnv = EnvironmentVariables::setDev($envFile);
         $newEnv = EnvironmentVariables::setUrl($envFile, $this);
-        $newEnv = EnvironmentVariables::updateOrAppend($newEnv, config('forge.env_vars'));
 
         if (config('forge.enable_db')) {
             $newEnv = EnvironmentVariables::setDB($newEnv, $this);
