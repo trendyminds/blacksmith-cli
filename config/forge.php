@@ -39,6 +39,9 @@ return [
     // Additional deploy commands to run after the default deploy script
     'deploy_script' => env('FORGE_DEPLOY_SCRIPT', ''),
 
+    // If you have your environment variables set in a GitHub secrets variable this is a convenient way to make the initial .env those values
+    'initial_env_vars' => env('FORGE_INITIAL_ENV_VARS'),
+
     // Additional environment variables to set (or replace if they already exist)
     'env_vars' => env('FORGE_ENV_VARS'),
 

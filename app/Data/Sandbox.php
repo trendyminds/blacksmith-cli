@@ -159,6 +159,18 @@ class Sandbox
      */
     public function updateEnvironmentVars(): void
     {
+        // If we have initial environment variables (from GitHub secrets), let's use that as the new starting point
+        if (config('forge.initial_env_vars')) {
+            $this->forge->updateSiteEnvironmentFile(
+                config('forge.server'),
+                $this->getSite()->id,
+                config('forge.initial_env_vars')
+            );
+
+            // In case Forge is slow to update the environment file, let's wait a few seconds
+            sleep(5);
+        }
+
         $envFile = $this->forge->siteEnvironmentFile(
             config('forge.server'),
             $this->getSite()->id
