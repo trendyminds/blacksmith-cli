@@ -3,6 +3,7 @@
 namespace App\Data;
 
 use App\Helpers\EnvironmentVariables;
+use App\Helpers\Nginx;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Forge\Forge;
@@ -114,6 +115,27 @@ class Sandbox
             config('forge.server'),
             $this->getSite()->id,
             ['domains' => [$this->url]],
+        );
+    }
+
+    /**
+     * Restricts the sandbox to specific IP addresses via Nginx
+     */
+    public function addIpRestrictions(): void
+    {
+        $server = $this->forge->server(config('forge.server'));
+
+        $currentNginx = $this->forge->siteNginxFile(
+            config('forge.server'),
+            $this->getSite()->id
+        );
+
+        $newNginxFile = Nginx::setAllowedIps($currentNginx, $server->ipAddress);
+
+        $this->forge->updateSiteNginxFile(
+            config('forge.server'),
+            $this->getSite()->id,
+            $newNginxFile
         );
     }
 

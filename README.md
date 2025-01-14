@@ -68,6 +68,7 @@ jobs:
 | `FORGE_COMPOSER_INSTALL_ON_MOUNT`  | `true`          | If `composer install` should be ran when the repo is mounted.                                                               |
 | `FORGE_ENABLE_DB`                  | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment             |
 | `FORGE_DB_PASSWORD`                |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically              |
+| `FORGE_ALLOWED_IPS`                |                 | If you would like to restrict your sandbox to specific IP addresses you may list them here (Ex: `1.1.1.1; 2.2.2.2`)         |
 | `FORGE_BACKUP_PROVIDER`            |                 | When set and when your sandbox uses a database it will be backed up to this provider. Accepts `s3` or `spaces`              |
 | `FORGE_BACKUP_REGION`              |                 | The region for the backup service you are using                                                                            |
 | `FORGE_BACKUP_BUCKET`              |                 | The bucket to use for the backup                                                                                           |

@@ -45,6 +45,9 @@ return [
     // The primary `forge` user's database password
     'db_password' => env('FORGE_DB_PASSWORD', ''),
 
+    // When set only these IP addresses are allowed access to the site
+    'allowed_ips' => env('FORGE_ALLOWED_IPS'),
+
     // If a database is in use this will be used for backing it up before destroying the site
     'backup_provider' => env('FORGE_BACKUP_PROVIDER'),
 

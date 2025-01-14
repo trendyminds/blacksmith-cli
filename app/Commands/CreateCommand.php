@@ -41,6 +41,10 @@ class CreateCommand extends Command
             $this->components->task('Installing SSL certificate', fn () => $sandbox->installSSL());
         }
 
+        if (config('forge.allowed_ips')) {
+            $this->components->task('Adding IP restrictions', fn () => $sandbox->addIpRestrictions());
+        }
+
         $this->components->task('Posting details to GitHub', fn () => GitHub::postCreateDetails());
     }
 }

@@ -1,0 +1,59 @@
+# FORGE CONFIG (DO NOT REMOVE!)
+include forge-conf/mysite.test/before/*;
+
+server {
+    http2 on;
+    listen 443 ssl;
+    listen [::]:443 ssl;
+    server_name mysite.test;
+    server_tokens off;
+    root /home/forge/mysite.test/src/public;
+
+    # FORGE SSL (DO NOT REMOVE!)
+    ssl_certificate /etc/nginx/ssl/mysite.test/123/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/mysite.test/123/server.key;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.html index.htm index.php;
+
+    charset utf-8;
+
+    # FORGE CONFIG (DO NOT REMOVE!)
+    include forge-conf/mysite.test/server/*;
+
+    location / {
+# IP restrictions (via ALLOWED_IPS)
+allow 9.9.9.9;
+allow 1.1.1.1;
+allow 2.2.2.2;
+allow 3.3.3.3;
+deny all;
+
+        try_files $uri $uri/ /index.php?$query_string;
+    }
+
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    access_log off;
+    error_log  /var/log/nginx/mysite.test-error.log error;
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_split_path_info ^(.+\.php)(/.+)$;
+        fastcgi_pass unix:/var/run/php/php8.3-fpm.sock;
+        fastcgi_index index.php;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+}
+
+# FORGE CONFIG (DO NOT REMOVE!)
+include forge-conf/mysite.test/after/*;
