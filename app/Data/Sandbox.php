@@ -268,7 +268,7 @@ class Sandbox
         ])->post('{+endpoint}/servers/{server}/backup-configs/{backupId}');
 
         // Wait before deleting the backup config. Unfortunately these are all async processes
-        sleep(45);
+        sleep(90);
 
         // Delete the backup configuration after the backup is complete
         $backup->delete();
