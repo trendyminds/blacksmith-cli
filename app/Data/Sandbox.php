@@ -137,6 +137,9 @@ class Sandbox
             $this->getSite()->id,
             $newNginxFile
         );
+
+        // In case Forge is slow to update the Nginx file, let's wait a few seconds
+        sleep(5);
     }
 
     /**
