@@ -151,8 +151,12 @@ class Sandbox
             '# Ignore bot-based commits to the repo',
             '[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0',
             '',
-            '# Default Blacksmith commands',
+            '# Start Blacksmith deployment scripts',
             'cd $FORGE_SITE_PATH',
+            '',
+            '# Remove local changes to package file (the name change that Forge makes)',
+            'git checkout -- package-lock.json',
+            '',
             'git pull origin $FORGE_SITE_BRANCH',
         ];
 

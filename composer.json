@@ -16,14 +16,14 @@
         }
     ],
     "require": {
-        "php": "^8.2.0",
-        "illuminate/http": "^11.35",
-        "illuminate/validation": "^11.36",
+        "php": "^8.4.0",
+        "illuminate/http": "^12.0",
+        "illuminate/validation": "^12.0",
         "intonate/tinker-zero": "^1.2",
         "laravel/forge-sdk": "^3.19"
     },
     "require-dev": {
-        "laravel-zero/framework": "^11.0.2",
+        "laravel-zero/framework": "^12.0",
         "laravel/pint": "^1.18.1",
         "mockery/mockery": "^1.6.12",
         "pestphp/pest": "^3.5.1"

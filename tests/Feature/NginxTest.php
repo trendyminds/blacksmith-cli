@@ -18,11 +18,11 @@ test('ip formatting does not matter', function () {
 });
 
 test('new lines are accepted', function () {
-    $ips = "
+    $ips = '
         1.1.1.1;
         2.2.2.2;
         3.3.3.3;
-    ";
+    ';
 
     Config::set('forge.allowed_ips', $ips);
     $baseNginx = file_get_contents(base_path('tests/Fixtures/nginx.conf'));
