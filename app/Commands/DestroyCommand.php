@@ -30,8 +30,8 @@ class DestroyCommand extends Command
             throw new Exception('There is no sandbox to destroy');
         }
 
-        // Create a database backup if the site has a backup provider set
-        if (config('forge.enable_db') && config('forge.backup_provider')) {
+        // Create a database backup if the site has a storage provider set
+        if (config('forge.enable_db') && config('forge.storage_provider_id')) {
             $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
         }
 

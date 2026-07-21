@@ -69,7 +69,7 @@ class GitHub
     Your sandbox has been successfully decommissioned.\n
     EOT;
 
-        if (config('forge.enable_db') && config('forge.backup_provider')) {
+        if (config('forge.enable_db') && config('forge.storage_provider_id')) {
             $message .= "\n";
             $message .= <<<EOT
     In addition to closing out this sandbox the database `{$sandbox->databaseName}` has been backed up to your backup provider.\n
