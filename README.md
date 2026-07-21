@@ -82,7 +82,7 @@ jobs:
 
 Backups rely on a Forge [Storage Provider](https://forge.laravel.com/docs). Create one in the Forge dashboard (configuring its provider type, region, bucket, and credentials), then reference it via `FORGE_STORAGE_PROVIDER_ID`. When set and your sandbox uses a database, Blacksmith creates a one-off backup configuration on destroy, triggers a backup, and then removes the configuration.
 
-Unfortunately, Forge's backup configuration and storage processes are asynchronous and, because of this, a lengthy and arbitrary `sleep()` method is used when running these. That means it's _possible_ a database backup when your sandbox is decommissioned may not complete successfully. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
+Forge's backup processes are asynchronous, so Blacksmith polls the backup until it reports as finished before removing the backup configuration and destroying the database. Backups are given up to 30 minutes to complete; if one takes longer than that the destroy will fail rather than tear down the database prematurely. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
 
 ## <img src="docs/statamic.svg" alt="Statamic"> Statamic notes
 

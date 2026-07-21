@@ -7,6 +7,9 @@ use App\Helpers\Nginx;
 use Exception;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Forge\Forge;
+use Laravel\Forge\Resources\Backup;
+use Laravel\Forge\Resources\BackupConfiguration;
+use Laravel\Forge\Resources\Command;
 use Laravel\Forge\Resources\Database;
 use Laravel\Forge\Resources\Domain;
 use Laravel\Forge\Resources\Site;
@@ -114,6 +117,8 @@ class Sandbox
             return;
         }
 
+        $siteId = $this->getSite()->id;
+
         $commandString = str(config('forge.post_mount_commands'))
             ->explode(';')
             ->filter()
@@ -123,14 +128,36 @@ class Sandbox
         $this->forge->createCommand(
             config('forge.organization'),
             config('forge.server'),
-            $this->getSite()->id,
+            $siteId,
             ['command' => $commandString],
         );
 
-        // The Forge SDK does not have a method for waiting for site commands to
-        // finish, so we might encounter a race condition if we run the next step
-        // too quickly. Waiting a few seconds should be enough time for them to run.
-        sleep(10);
+        // createCommand does not return the command, so grab the one we just
+        // queued and wait for it to finish before moving on.
+        $command = $this->latestCommand($siteId);
+
+        $this->forge->retry(300, function () use ($siteId, $command) {
+            $fresh = $this->forge->command(
+                config('forge.organization'),
+                config('forge.server'),
+                $siteId,
+                $command->id
+            );
+
+            return in_array($fresh->status, ['finished', 'timeout', 'failed'], true) ? $fresh : null;
+        });
+    }
+
+    /**
+     * Returns the most recently created command for a site
+     */
+    private function latestCommand(int $siteId): Command
+    {
+        return $this->forge->retry(60, function () use ($siteId) {
+            $commands = $this->forge->commands(config('forge.organization'), config('forge.server'), $siteId);
+
+            return collect($commands->items())->sortByDesc('id')->first();
+        });
     }
 
     /**
@@ -229,7 +256,8 @@ class Sandbox
             $newNginxFile
         );
 
-        // In case Forge is slow to update the Nginx file, let's wait a few seconds
+        // Updating the Nginx file triggers an asynchronous reload on the server with
+        // no status we can poll, so give it a moment to take effect before moving on.
         sleep(5);
     }
 
@@ -286,20 +314,9 @@ class Sandbox
     {
         $siteId = $this->getSite()->id;
 
-        // If environment variables are being set let's use that as the new starting point
-        if (config('forge.env_vars')) {
-            $this->forge->updateSiteEnvironment(
-                config('forge.organization'),
-                config('forge.server'),
-                $siteId,
-                config('forge.env_vars')
-            );
-
-            // In case Forge is slow to update the environment file, let's wait a few seconds
-            sleep(5);
-        }
-
-        $envFile = $this->forge->siteEnvironment(
+        // If environment variables are supplied use them as the new starting point,
+        // otherwise start from the environment file Forge generated for the site.
+        $envFile = config('forge.env_vars') ?: $this->forge->siteEnvironment(
             config('forge.organization'),
             config('forge.server'),
             $siteId
@@ -361,9 +378,6 @@ class Sandbox
         // by name to get the ID needed to trigger and later delete it.
         $backupConfiguration = $this->getBackupConfiguration($name);
 
-        // Wait before starting the backup. Unfortunately these are all async processes
-        sleep(15);
-
         // Initiate the backup
         $this->forge->createBackup(
             config('forge.organization'),
@@ -371,34 +385,64 @@ class Sandbox
             $backupConfiguration->id
         );
 
-        // Wait before deleting the backup config. Unfortunately these are all async processes
-        sleep(90);
+        // Wait for the backup to actually finish before removing its configuration
+        // (and, ultimately, destroying the database). Backups are asynchronous and
+        // vary wildly in duration by database size, so poll rather than guess.
+        $backup = $this->latestBackup($backupConfiguration->id);
 
-        // Delete the backup configuration after the backup is complete
+        $this->forge->retry(1800, function () use ($backupConfiguration, $backup) {
+            $fresh = $this->forge->backup(
+                config('forge.organization'),
+                config('forge.server'),
+                $backupConfiguration->id,
+                $backup->id
+            );
+
+            return $fresh->finishedAt !== null ? $fresh : null;
+        });
+
+        // Delete the backup configuration now that the backup is complete
         $this->forge->deleteBackupConfiguration(
             config('forge.organization'),
             config('forge.server'),
             $backupConfiguration->id
         );
-
-        // Wait a moment before proceeding to subsequent steps
-        sleep(10);
     }
 
     /**
-     * Returns a backup configuration on the server by name
+     * Returns a backup configuration on the server by name.
+     *
+     * The configuration is created asynchronously, so poll until it appears.
      */
-    private function getBackupConfiguration(string $name)
+    private function getBackupConfiguration(string $name): BackupConfiguration
     {
-        $configurations = $this->forge->backupConfigurations(config('forge.organization'), config('forge.server'));
+        return $this->forge->retry(120, function () use ($name) {
+            $configurations = $this->forge->backupConfigurations(config('forge.organization'), config('forge.server'));
 
-        foreach ($configurations->lazy() as $configuration) {
-            if ($configuration->name === $name) {
-                return $configuration;
+            foreach ($configurations->lazy() as $configuration) {
+                if ($configuration->name === $name) {
+                    return $configuration;
+                }
             }
-        }
 
-        throw new Exception("Unable to find the backup configuration \"{$name}\"");
+            return null;
+        });
+    }
+
+    /**
+     * Returns the most recently created backup instance for a configuration
+     */
+    private function latestBackup(int $backupConfigurationId): Backup
+    {
+        return $this->forge->retry(120, function () use ($backupConfigurationId) {
+            $backups = $this->forge->backups(
+                config('forge.organization'),
+                config('forge.server'),
+                $backupConfigurationId
+            );
+
+            return collect($backups->items())->sortByDesc('id')->first();
+        });
     }
 
     /**

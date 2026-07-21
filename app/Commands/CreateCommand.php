@@ -43,7 +43,9 @@ class CreateCommand extends Command
         }
 
         if (config('forge.allowed_ips')) {
-            // Ensure the SSL is fully provisioned and the Nginx config is ready to be modified again
+            // Obtaining the SSL certificate rewrites the site's Nginx config asynchronously.
+            // There's no status to poll for that settling, so wait before we modify Nginx
+            // again for the IP restrictions to avoid racing/clobbering that change.
             sleep(30);
             $this->components->task('Adding IP restrictions', fn () => $sandbox->addIpRestrictions());
         }
