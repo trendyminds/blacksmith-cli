@@ -217,7 +217,16 @@ class Sandbox
             config('forge.server'),
             $site->id,
             $domain->id,
-            ['type' => 'letsencrypt'],
+            [
+                'type' => 'letsencrypt',
+                'letsencrypt' => [
+                    // The sandbox subdomain resolves directly to the server, so
+                    // verify over HTTP rather than DNS (which would need a DNS
+                    // provider integration).
+                    'verification_method' => 'http-01',
+                    'key_type' => 'rsa',
+                ],
+            ],
         );
     }
 
