@@ -78,6 +78,12 @@ jobs:
 | `FORGE_POST_MOUNT_COMMANDS`        |                 | Commands to run after the repository is first mounted. Use `;` to delineate between steps (Ex: `ls -lah; echo 'hi'`)       |
 | `FORGE_PATH_TO_COMPOSER_FILE`      |                 | The path to your composer.json file if not in the root of the project (Ex: `src/`)                                         |
 
+## 🟢 Node version
+
+If your project includes an `.nvmrc` file, Blacksmith installs the pinned Node version on every deploy using a per-site [nvm](https://github.com/nvm-sh/nvm). Because sandboxes run under user isolation, each site's user gets its own `~/.nvm`, so the pinned version is scoped to that sandbox. Without an `.nvmrc`, the server's default Node is used and nvm is not installed.
+
+This ensures `FORGE_DEPLOY_SCRIPT` steps such as `npm install; npm run build` run against the Node version your project expects.
+
 ## 🔒 Backups
 
 Backups rely on a Forge [Storage Provider](https://forge.laravel.com/docs). Create one in the Forge dashboard (configuring its provider type, region, bucket, and credentials), then reference it via `FORGE_STORAGE_PROVIDER_ID`. When set and your sandbox uses a database, Blacksmith creates a one-off backup configuration on destroy, triggers a backup, and then removes the configuration.
