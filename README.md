@@ -31,6 +31,7 @@ jobs:
       FORGE_DOMAIN: example.com
       FORGE_DEPLOY_SCRIPT: "npm install; npm run build"
       FORGE_TOKEN: ${{ secrets.BLACKSMITH_FORGE_TOKEN }}
+      FORGE_ORGANIZATION: ${{ secrets.BLACKSMITH_FORGE_ORGANIZATION }}
       FORGE_SERVER: ${{ secrets.BLACKSMITH_SANDBOX_SERVER }}
       FORGE_REPO: ${{ github.repository }}
       FORGE_BRANCH: ${{ github.head_ref }}
@@ -57,32 +58,37 @@ jobs:
 | Environment Name                   |  Default value  |  Description                                                                                                               |
 |------------------------------------|-----------------|----------------------------------------------------------------------------------------------------------------------------|
 | `FORGE_TOKEN`                      |                 | The [API token](https://forge.laravel.com/docs/accounts/api) to use to authenticate to your Forge account                  |
+| `FORGE_ORGANIZATION`               |                 | Your Forge organization slug. Found in the dashboard URL: `forge.laravel.com/orgs/{slug}/...`                              |
 | `FORGE_SERVER`                     |                 | The ID of the server to use when provisioning new sites                                                                    |
 | `FORGE_APP_ID`                     |                 | The prefix for your domain and database                                                                                    |
 | `FORGE_PR_NUMBER`                  |                 | The PR number for your sandbox pull request                                                                                |
 | `FORGE_PHP_VERSION`                | `php83`         | The version of PHP to use                                                                                                  |
 | `FORGE_DOMAIN`                     |                 | The domain to use (Ex: `domain.com`)                                                                                       |
-| `FORGE_INSTALL_SSL`                | `false`         | When enabled, a Let's Encrypt SSL will be provisioned for the domain                                                       |
+| `FORGE_INSTALL_SSL`                | `true`          | When enabled, a Let's Encrypt SSL will be provisioned for the domain                                                       |
 | `FORGE_DEPLOY_SCRIPT`              |                 | Additional steps to add to your deploy process. Use `;` to delineate between steps (Ex: `npm install; npm run build`)      |
 | `FORGE_ENV_VARS`                   |                 | Environment variables to append (or replace if they already exist)                                                         |
 | `FORGE_COMPOSER_INSTALL_ON_MOUNT`  | `true`          | If `composer install` should be ran when the repo is mounted.                                                               |
 | `FORGE_ENABLE_DB`                  | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment             |
 | `FORGE_DB_PASSWORD`                |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically              |
 | `FORGE_ALLOWED_IPS`                |                 | If you would like to restrict your sandbox to specific IP addresses you may list them here (Ex: `1.1.1.1; 2.2.2.2`)         |
-| `FORGE_BACKUP_PROVIDER`            |                 | When set and when your sandbox uses a database it will be backed up to this provider. Accepts `s3` or `spaces`              |
-| `FORGE_BACKUP_REGION`              |                 | The region for the backup service you are using                                                                            |
-| `FORGE_BACKUP_BUCKET`              |                 | The bucket to use for the backup                                                                                           |
-| `FORGE_BACKUP_ACCESS_KEY`          |                 | The access key for connecting to the bucket                                                                                |
-| `FORGE_BACKUP_SECRET_KEY`          |                 | The secret key for connecting to the bucket                                                                                |
+| `FORGE_STORAGE_PROVIDER_ID`        |                 | The ID of a [Storage Provider](https://forge.laravel.com/docs) configured in Forge. When set and your sandbox uses a database, the database is backed up there before the site is destroyed. The provider type, region, bucket, and credentials are configured once in the Forge dashboard. |
 | `FORGE_GITHUB_TOKEN`               |                 | Used to create a post-deploy comment within the pull request                                                               |
 | `FORGE_REPO`                       |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                          |
 | `FORGE_BRANCH`                     |                 | The branch to use when mounting your repo to the site                                                                      |
 | `FORGE_POST_MOUNT_COMMANDS`        |                 | Commands to run after the repository is first mounted. Use `;` to delineate between steps (Ex: `ls -lah; echo 'hi'`)       |
 | `FORGE_PATH_TO_COMPOSER_FILE`      |                 | The path to your composer.json file if not in the root of the project (Ex: `src/`)                                         |
 
+## 🟢 Node version
+
+If your project includes an `.nvmrc` file, Blacksmith installs the pinned Node version on every deploy using a per-site [nvm](https://github.com/nvm-sh/nvm). Because sandboxes run under user isolation, each site's user gets its own `~/.nvm`, so the pinned version is scoped to that sandbox. Without an `.nvmrc`, the server's default Node is used and nvm is not installed.
+
+This ensures `FORGE_DEPLOY_SCRIPT` steps such as `npm install; npm run build` run against the Node version your project expects.
+
 ## 🔒 Backups
 
-Unfortunately, Forge's backup configuration and storage processes are asynchronous and, because of this, a lengthy and arbitrary `sleep()` method is used when running these. That means it's _possible_ a database backup when your sandbox is decommissioned may not complete successfully. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
+Backups rely on a Forge [Storage Provider](https://forge.laravel.com/docs). Create one in the Forge dashboard (configuring its provider type, region, bucket, and credentials), then reference it via `FORGE_STORAGE_PROVIDER_ID`. When set and your sandbox uses a database, Blacksmith creates a one-off backup configuration on destroy, triggers a backup, and then removes the configuration.
+
+Forge's backup processes are asynchronous, so Blacksmith polls the backup until it reports as finished before removing the backup configuration and destroying the database. Backups are given up to 30 minutes to complete; if one takes longer than that the destroy will fail rather than tear down the database prematurely. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
 
 ## <img src="docs/statamic.svg" alt="Statamic"> Statamic notes
 

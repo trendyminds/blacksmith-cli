@@ -1,5 +1,10 @@
 <?php
 
+use App\Providers\AppServiceProvider;
+use Illuminate\Translation\TranslationServiceProvider;
+use Illuminate\Validation\ValidationServiceProvider;
+use Intonate\TinkerZero\TinkerZeroServiceProvider;
+
 return [
 
     /*
@@ -54,10 +59,10 @@ return [
     */
 
     'providers' => [
-        App\Providers\AppServiceProvider::class,
-        Illuminate\Validation\ValidationServiceProvider::class,
-        Illuminate\Translation\TranslationServiceProvider::class,
-        Intonate\TinkerZero\TinkerZeroServiceProvider::class,
+        AppServiceProvider::class,
+        ValidationServiceProvider::class,
+        TranslationServiceProvider::class,
+        TinkerZeroServiceProvider::class,
     ],
 
 ];
