@@ -60,6 +60,9 @@ class Sandbox
             'name' => $this->url,
             // Treat the site name as our own custom domain rather than a Forge vanity domain
             'domain_mode' => 'custom',
+            // Sandbox subdomains have no www variant and don't need wildcard subdomains
+            'www_redirect_type' => 'none',
+            'allow_wildcard_subdomains' => false,
             // Run the site as its own dedicated system user, isolated from other sites
             'is_isolated' => true,
             'isolated_user' => $this->isolatedUser,
@@ -266,38 +269,55 @@ class Sandbox
      */
     public function updateDeployScript(): void
     {
-        $defaultCommands = [
-            '# Ignore bot-based commits to the repo',
-            '[[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0',
-            '',
-            '# Start Blacksmith deployment scripts',
-            'cd $FORGE_SITE_PATH',
-            '',
-            '# Remove local changes to package file (the name change that Forge makes)',
-            'git checkout -- package-lock.json',
-            '',
-            'git pull origin $FORGE_SITE_BRANCH',
-        ];
+        $prelude = <<<'BASH'
+        # Ignore bot-based commits to the repo
+        [[ $FORGE_DEPLOY_MESSAGE =~ "[BOT]" ]] && echo "Skipping bot-based deploy" && exit 0
 
-        // Setup composer install command and append the working directory flag if necessary
-        $composerCmd = '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader';
+        # Start Blacksmith deployment scripts
+        cd $FORGE_SITE_PATH
+
+        # Remove local changes to package file (the name change that Forge makes)
+        git checkout -- package-lock.json
+
+        git pull origin $FORGE_SITE_BRANCH
+        BASH;
+
+        // Install composer dependencies, targeting a subdirectory when configured
+        $composer = '$FORGE_COMPOSER install --no-dev --no-interaction --prefer-dist --optimize-autoloader';
 
         if (config('forge.path_to_composer_file')) {
-            $composerCmd .= ' --working-dir='.config('forge.path_to_composer_file');
+            $composer .= ' --working-dir='.config('forge.path_to_composer_file');
         }
 
-        $defaultCommands[] = $composerCmd;
+        // When the project pins a Node version via .nvmrc, install it through a
+        // per-site nvm (each site's user gets its own ~/.nvm, so it works under
+        // user isolation). Without an .nvmrc we leave the server's default Node
+        // in place and don't install nvm at all.
+        $node = <<<'BASH'
+        # Set up the pinned Node version via nvm (installed per-site for user isolation)
+        if [ -f .nvmrc ]; then
+            export NVM_DIR="$HOME/.nvm"
 
-        $userCommands = str(config('forge.deploy_script'))
+            if [ ! -s "$NVM_DIR/nvm.sh" ]; then
+                curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash
+            fi
+
+            . "$NVM_DIR/nvm.sh"
+            nvm install
+        fi
+        BASH;
+
+        // Append any user-supplied commands from the deploy script config
+        $userScript = str(config('forge.deploy_script'))
             ->explode(';')
             ->filter()
             ->map(fn ($command) => str($command)->trim()->value())
-            ->whenNotEmpty(fn ($commands) => $commands->prepend('# Via FORGE_DEPLOY_SCRIPT')->prepend('')
-            );
-
-        $allCommands = collect($defaultCommands)
-            ->when($userCommands->isNotEmpty(), fn ($commands) => $commands->concat($userCommands))
+            ->whenNotEmpty(fn ($commands) => $commands->prepend('# Via FORGE_DEPLOY_SCRIPT'))
             ->join("\n");
+
+        $allCommands = collect([$prelude, $composer, $node, $userScript])
+            ->filter()
+            ->join("\n\n");
 
         $this->forge->updateDeploymentScript(
             config('forge.organization'),

@@ -5,6 +5,7 @@ namespace App\Commands;
 use App\Data\Sandbox;
 use App\Services\GitHub;
 use Exception;
+use Laravel\Forge\Exceptions\ValidationException;
 use LaravelZero\Framework\Commands\Command;
 
 class CreateCommand extends Command
@@ -31,25 +32,32 @@ class CreateCommand extends Command
             throw new Exception('The sandbox already exists');
         }
 
-        // Creating the site also mounts the git repository, runs composer install,
-        // and enables push-to-deploy.
-        $this->components->task('Creating sandbox and mounting repository', fn () => $sandbox->createSite());
-        $this->components->task('Updating the deployment script', fn () => $sandbox->updateDeployScript());
-        $this->components->task('Updating the environment variables', fn () => $sandbox->updateEnvironmentVars());
-        $this->components->task('Initiating first deploy', fn () => $sandbox->deploy());
+        try {
+            // Creating the site also mounts the git repository, runs composer install,
+            // and enables push-to-deploy.
+            $this->components->task('Creating sandbox and mounting repository', fn () => $sandbox->createSite());
+            $this->components->task('Updating the deployment script', fn () => $sandbox->updateDeployScript());
+            $this->components->task('Updating the environment variables', fn () => $sandbox->updateEnvironmentVars());
+            $this->components->task('Initiating first deploy', fn () => $sandbox->deploy());
 
-        if (config('forge.install_ssl')) {
-            $this->components->task('Installing SSL certificate', fn () => $sandbox->installSSL());
+            if (config('forge.install_ssl')) {
+                $this->components->task('Installing SSL certificate', fn () => $sandbox->installSSL());
+            }
+
+            if (config('forge.allowed_ips')) {
+                // Obtaining the SSL certificate rewrites the site's Nginx config asynchronously.
+                // There's no status to poll for that settling, so wait before we modify Nginx
+                // again for the IP restrictions to avoid racing/clobbering that change.
+                sleep(30);
+                $this->components->task('Adding IP restrictions', fn () => $sandbox->addIpRestrictions());
+            }
+
+            $this->components->task('Posting details to GitHub', fn () => GitHub::postCreateDetails());
+        } catch (ValidationException $e) {
+            $this->components->error('Forge rejected the request with the following validation errors:');
+            $this->line(json_encode($e->errors(), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+
+            return self::FAILURE;
         }
-
-        if (config('forge.allowed_ips')) {
-            // Obtaining the SSL certificate rewrites the site's Nginx config asynchronously.
-            // There's no status to poll for that settling, so wait before we modify Nginx
-            // again for the IP restrictions to avoid racing/clobbering that change.
-            sleep(30);
-            $this->components->task('Adding IP restrictions', fn () => $sandbox->addIpRestrictions());
-        }
-
-        $this->components->task('Posting details to GitHub', fn () => GitHub::postCreateDetails());
     }
 }
