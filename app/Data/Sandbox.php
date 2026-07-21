@@ -293,17 +293,28 @@ class Sandbox
         // per-site nvm (each site's user gets its own ~/.nvm, so it works under
         // user isolation). Without an .nvmrc we leave the server's default Node
         // in place and don't install nvm at all.
+        //
+        // The nvm installer and sourcing nvm.sh both legitimately return a
+        // non-zero status (the installer probes global npm modules; a fresh nvm
+        // has no default Node alias to auto-use), which would abort the deploy
+        // under Forge's errexit before Node is ever installed. We disable errexit
+        // while bootstrapping nvm, then honor only the real exit code of
+        // `nvm install` so a genuine install failure still fails the deploy.
         $node = <<<'BASH'
-        # Set up the pinned Node version via nvm (installed per-site for user isolation)
         if [ -f .nvmrc ]; then
             export NVM_DIR="$HOME/.nvm"
-
+            set +e
             if [ ! -s "$NVM_DIR/nvm.sh" ]; then
                 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.5/install.sh | bash
             fi
-
             . "$NVM_DIR/nvm.sh"
             nvm install
+            nvm_install_status=$?
+            set -e
+            if [ "$nvm_install_status" -ne 0 ]; then
+                echo "nvm install failed with status $nvm_install_status"
+                exit "$nvm_install_status"
+            fi
         fi
         BASH;
 
