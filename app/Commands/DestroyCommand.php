@@ -5,6 +5,7 @@ namespace App\Commands;
 use App\Data\Sandbox;
 use App\Services\GitHub;
 use Exception;
+use Illuminate\Console\View\TaskResult;
 use Laravel\Forge\Exceptions\ValidationException;
 use LaravelZero\Framework\Commands\Command;
 
@@ -34,7 +35,20 @@ class DestroyCommand extends Command
         try {
             // Create a database backup if the site has a storage provider set
             if (config('forge.enable_db') && config('forge.storage_provider_id')) {
-                $this->components->task('Creating database backup', fn () => $sandbox->createDbBackup());
+                $backupError = null;
+
+                $this->components->task('Creating database backup', function () use ($sandbox, &$backupError) {
+                    $backupError = $sandbox->createDbBackup();
+
+                    return $backupError === null ? TaskResult::Success->value : TaskResult::Failure->value;
+                });
+
+                // A missing backup is not a reason to leave the sandbox running, so warn
+                // about it and carry on with the teardown.
+                if ($backupError !== null) {
+                    $this->components->warn('The database backup did not complete: '.$backupError);
+                    $this->components->warn('Continuing with the teardown anyway.');
+                }
             }
 
             $this->components->task('Destroying sandbox', fn () => $sandbox->destroy());
