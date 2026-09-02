@@ -52,12 +52,6 @@ return [
     // When set only these IP addresses are allowed access to the site
     'allowed_ips' => env('FORGE_ALLOWED_IPS'),
 
-    // The ID of a Forge Storage Provider used to back up the database before
-    // destroying the site. The backup destination (provider type, region, bucket,
-    // and credentials) is configured as a Storage Provider in the Forge dashboard
-    // and referenced here by ID. When empty, no backup is taken on destroy.
-    'storage_provider_id' => env('FORGE_STORAGE_PROVIDER_ID'),
-
     // The token for the GitHub API to post details to the PR
     'github_token' => env('FORGE_GITHUB_TOKEN'),
 

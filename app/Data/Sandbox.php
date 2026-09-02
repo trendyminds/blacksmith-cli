@@ -6,15 +6,11 @@ use App\Helpers\EnvironmentVariables;
 use App\Helpers\Nginx;
 use Exception;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Forge\Exceptions\TimeoutException;
 use Laravel\Forge\Forge;
-use Laravel\Forge\Resources\Backup;
-use Laravel\Forge\Resources\BackupConfiguration;
 use Laravel\Forge\Resources\Command;
 use Laravel\Forge\Resources\Database;
 use Laravel\Forge\Resources\Domain;
 use Laravel\Forge\Resources\Site;
-use Throwable;
 
 class Sandbox
 {
@@ -394,142 +390,6 @@ class Sandbox
     }
 
     /**
-     * Creates a database backup via Forge's backup system.
-     *
-     * The backup is a convenience, not a prerequisite for tearing the sandbox down,
-     * so failures are returned as a message rather than thrown. Returns null when the
-     * backup completed (or when there was no database to back up).
-     */
-    public function createDbBackup(): ?string
-    {
-        // Only run if the sandbox actually has a database to back up
-        if (! $database = $this->getDatabase()) {
-            return null;
-        }
-
-        $name = 'blacksmith-'.$this->databaseName;
-
-        $this->forge->createBackupConfiguration(config('forge.organization'), config('forge.server'), [
-            'storage_provider_id' => (int) config('forge.storage_provider_id'),
-            'name' => $name,
-            'directory' => 'blacksmith-backups',
-            'frequency' => 'weekly',
-            'day' => '0',
-            'time' => '01:00',
-            'retention' => 7,
-            'database_ids' => [$database->id],
-        ]);
-
-        $backupConfiguration = null;
-
-        try {
-            // The create call does not return the new configuration, so fetch it back
-            // by name to get the ID needed to trigger and later delete it.
-            $backupConfiguration = $this->getBackupConfiguration($name);
-
-            // Initiate the backup
-            $this->forge->createBackup(
-                config('forge.organization'),
-                config('forge.server'),
-                $backupConfiguration->id
-            );
-
-            // Wait for the backup to actually finish before removing its configuration
-            // (and, ultimately, destroying the database). Backups are asynchronous and
-            // vary wildly in duration by database size, so poll rather than guess.
-            $backup = $this->latestBackup($backupConfiguration->id);
-
-            $this->forge->retry(1800, function () use ($backupConfiguration, $backup) {
-                $fresh = $this->forge->backup(
-                    config('forge.organization'),
-                    config('forge.server'),
-                    $backupConfiguration->id,
-                    $backup->id
-                );
-
-                return $fresh->finishedAt !== null ? $fresh : null;
-            });
-        } catch (TimeoutException) {
-            return 'Forge did not finish the backup in time.';
-        } catch (Throwable $e) {
-            return $e->getMessage();
-        } finally {
-            // Never leave the configuration behind pointing at a database that is
-            // about to be deleted, even when the backup itself went sideways.
-            $this->forgetBackupConfiguration($backupConfiguration, $name);
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns a backup configuration on the server by name.
-     *
-     * The configuration is created asynchronously, so poll until it appears.
-     */
-    private function getBackupConfiguration(string $name): BackupConfiguration
-    {
-        return $this->forge->retry(300, fn () => $this->findBackupConfiguration($name));
-    }
-
-    /**
-     * Looks for a backup configuration on the server by name without waiting for it
-     */
-    private function findBackupConfiguration(string $name): ?BackupConfiguration
-    {
-        $configurations = $this->forge->backupConfigurations(config('forge.organization'), config('forge.server'));
-
-        foreach ($configurations->lazy() as $configuration) {
-            if ($configuration->name === $name) {
-                return $configuration;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Deletes a backup configuration, swallowing any failure.
-     *
-     * This runs as part of the teardown, where a leftover configuration is worth one
-     * best-effort attempt but never worth failing the destroy over.
-     */
-    private function forgetBackupConfiguration(?BackupConfiguration $configuration, string $name): void
-    {
-        try {
-            $configuration ??= $this->findBackupConfiguration($name);
-
-            if (! $configuration) {
-                return;
-            }
-
-            $this->forge->deleteBackupConfiguration(
-                config('forge.organization'),
-                config('forge.server'),
-                $configuration->id
-            );
-        } catch (Throwable) {
-            // Nothing more to do here; destroying the sandbox matters more.
-        }
-    }
-
-    /**
-     * Returns the most recently created backup instance for a configuration
-     */
-    private function latestBackup(int $backupConfigurationId): Backup
-    {
-        return $this->forge->retry(300, function () use ($backupConfigurationId) {
-            $backups = $this->forge->backups(
-                config('forge.organization'),
-                config('forge.server'),
-                $backupConfigurationId
-            );
-
-            return collect($backups->items())->sortByDesc('id')->first();
-        });
-    }
-
-    /**
      * Removes the sandbox from Forge
      */
     public function destroy(): void
@@ -569,7 +429,6 @@ class Sandbox
             'env_vars' => 'nullable|string',
             'db_password' => 'nullable|string',
             'github_token' => 'required|string',
-            'storage_provider_id' => 'nullable|integer',
         ]);
 
         $validator->validate();

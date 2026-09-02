@@ -71,7 +71,6 @@ jobs:
 | `FORGE_ENABLE_DB`                  | `false`         | Whether your site needs a database. If `true` one will be created for you and shared in the post-deploy comment             |
 | `FORGE_DB_PASSWORD`                |                 | The master password for your `forge` database user. This will be placed into your project's .env automatically              |
 | `FORGE_ALLOWED_IPS`                |                 | If you would like to restrict your sandbox to specific IP addresses you may list them here (Ex: `1.1.1.1; 2.2.2.2`)         |
-| `FORGE_STORAGE_PROVIDER_ID`        |                 | The ID of a [Storage Provider](https://forge.laravel.com/docs) configured in Forge. When set and your sandbox uses a database, the database is backed up there before the site is destroyed. The provider type, region, bucket, and credentials are configured once in the Forge dashboard. |
 | `FORGE_GITHUB_TOKEN`               |                 | Used to create a post-deploy comment within the pull request                                                               |
 | `FORGE_REPO`                       |                 | The GitHub repo to deploy and mount for the sandbox generation (Ex: `myorg/repo`)                                          |
 | `FORGE_BRANCH`                     |                 | The branch to use when mounting your repo to the site                                                                      |
@@ -86,9 +85,9 @@ This ensures `FORGE_DEPLOY_SCRIPT` steps such as `npm install; npm run build` ru
 
 ## 🔒 Backups
 
-Backups rely on a Forge [Storage Provider](https://forge.laravel.com/docs). Create one in the Forge dashboard (configuring its provider type, region, bucket, and credentials), then reference it via `FORGE_STORAGE_PROVIDER_ID`. When set and your sandbox uses a database, Blacksmith creates a one-off backup configuration on destroy, triggers a backup, and then removes the configuration.
+**Database backups were removed in 3.2.0.** Earlier versions took a one-off Forge backup of the sandbox database before destroying it, configured via `FORGE_STORAGE_PROVIDER_ID`. That variable is no longer read, and `blacksmith destroy` now deletes the database outright.
 
-Forge's backup processes are asynchronous, so Blacksmith polls the backup until it reports as finished before removing the backup configuration and destroying the database. Backups are given up to 30 minutes to complete; if one takes longer than that the destroy will fail rather than tear down the database prematurely. For tried-and-true backups consider running a separate backup process on Forge to ensure you have a method to restore databases if necessary.
+If you need a sandbox database to survive its teardown, back it up yourself before running `blacksmith destroy`, or set up a scheduled backup on the server in Forge.
 
 ## <img src="docs/statamic.svg" alt="Statamic"> Statamic notes
 
