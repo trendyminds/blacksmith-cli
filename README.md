@@ -41,7 +41,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: shivammathur/setup-php@v2
       with:
-        php-version: 8.3
+        php-version: 8.4
         coverage: none
     - name: Install Blacksmith
       run: composer global require trendyminds/blacksmith-cli
